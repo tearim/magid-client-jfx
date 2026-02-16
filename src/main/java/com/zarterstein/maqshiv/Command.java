@@ -2,7 +2,7 @@
 
     import javax.json.JsonObject;
 
-    public class Command extends UIElement{
+    public class Command extends UiElement {
     private String responseCommand;
 
     public String getDescription() {
@@ -28,9 +28,19 @@
     }
 
     public Command(JsonObject jObj) {
-        setDescription(jObj.getString("command-description"));
-        setResponseCommand(jObj.getString("command-name"));
+        createFromJson(jObj);
+    }
+
+    public Command(JsonObject jObj, Client client) {
+        setClient(client);
+        createFromJson(jObj);
+    }
+
+    public Command createFromJson(JsonObject jObj) {
+        setDescription(UiElement.getStringIfSet(jObj, "command-description"));
+        setResponseCommand(UiElement.getStringIfSet(jObj, "command-name"));
         getStyle().applyFromJson(jObj, "command-");
+        return this;
     }
 
 }

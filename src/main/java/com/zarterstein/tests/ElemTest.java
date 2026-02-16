@@ -1,11 +1,11 @@
 package com.zarterstein.tests;
 
 import com.zarterstein.maqshiv.ResponseNodeType;
-import com.zarterstein.maqshiv.UIElement;
+import com.zarterstein.maqshiv.UiElement;
 
 public class ElemTest {
     public static void main(String[] args) {
-        UIElement elem = ResponseNodeType.byLabel("menu");
+        UiElement elem = ResponseNodeType.byLabel("menu");
 
         System.out.println(elem.getClass().getName());
 

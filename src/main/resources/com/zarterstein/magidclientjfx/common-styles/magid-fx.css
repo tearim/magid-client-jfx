@@ -1,0 +1,64 @@
+.magid-menu-textarea.text-area, .magid-menu-textarea.text-area .scroll-pane .viewport,
+.magid-menu-textarea.text-area .content {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+.story-button {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(250, 230, 210, 0.1);
+    -fx-border-color: rgba(0, 159, 255, 0.3);
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-opacity: 0.7;
+    -fx-transition-property: -fx-opacity;
+    -fx-transition-duration: 0.5s;
+    -mg-abs-x: 10%;
+    -mg-abs-y: 30%;
+}
+.story-button:hover {
+    -fx-opacity: 1;
+}
+.blurry {
+    filter: blur(5, 45);
+     -fx-background-color: rgba(190, 230, 250, 0.1);
+}
+.blurry:hover {
+    -fx-cursor: hand;
+    -fx-background-radius: 5px;
+    -fx-background-color: rgba(190, 230, 250, 0.2);
+     filter: blur(0, 0);
+}
+.first-scene-background {
+     -mg-window-width: 800px;
+     -mg-window-height: 720px;
+     -mg-window-resizable: false;
+    -fx-background-image: url('file:///C:/developer/com.zarterstein/com/zarterstein/resources/alias-images/dark-sea-ai-gen.png');
+    -fx-background-repeat: stretch;
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-padding: 0 0 0 0;
+    -fx-background-color: transparent;
+    -fx-font: 20px Tahoma;
+    -fx-font-color: #a0a;
+    -fx-control-inner-background: transparent;
+    -mg-resizable: false;
+}
+.first-scene-background__text-area {
+    -fx-text-fill: #AACC88;
+    -fx-font-color: #AACC88;
+    -fx-pref-width: 800px;
+    -fx-pref-height: 300px;
+}
+.second-scene-background {
+ -fx-background-image: url('file:///C:/developer/com.zarterstein/com/zarterstein/resources/alias-images/dark-sea-fire-closer-ai-gen.png');
+}
+
+.left-button {
+  -fx-font-color: #AACC88;
+  -mg-abs-x: 90px;
+  bottom: 150;
+  -fx-font: 20px Tahoma;
+  -fx-font-color: #a0a;
+  -fx-background-color: transparent;
+}
