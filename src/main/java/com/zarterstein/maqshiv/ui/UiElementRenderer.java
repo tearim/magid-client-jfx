@@ -25,6 +25,7 @@ public class UiElementRenderer {
     private final Scene scene;
     private final Client client;
     private UiElement uiElementRoot;
+    private final MultiStoreUiRelocator uiHouse = new MultiStoreUiRelocator();
 
     boolean useTextTimeline = false;
     int timeOffset = 0;
@@ -32,9 +33,9 @@ public class UiElementRenderer {
     Timeline visualEffectTimeline;
     boolean blockedByTransition = false;
     private final List<Long> blockedMillis = new ArrayList<>();
-    private final List<Integer> currentYOffsets = new ArrayList<>();
+    //private final List<Integer> currentYOffsets = new ArrayList<>();
 
-    private void clearYOffsets() {
+    /* private void clearYOffsets() {
         currentYOffsets.clear();
     }
 
@@ -46,7 +47,7 @@ public class UiElementRenderer {
     }
     private int getCurrentYOffset() {
         return currentYOffsets.stream().mapToInt(Integer::intValue).sum();
-    }
+    } */
     private void resetPane() {
         if ( requestResetPane && ( root != null ) ){
             ((Pane)root).getChildren().clear();
@@ -60,13 +61,12 @@ public class UiElementRenderer {
         if ( uiElementRoot != null) {
             uiElementRoot.getChildren().clear();
         }
-        currentYOffsets.clear();
-
+        uiHouse.vacate();
         uiElementRoot = rootElement;
         textTimeline = new Timeline();
         useTextTimeline = false;
         timeOffset = 0;
-        currentYOffsets.add(10);
+
         requestResetPane = true;
         if ( rootElement instanceof Responses) {
             renderResponses(rootElement);
@@ -194,7 +194,7 @@ public class UiElementRenderer {
                         e -> {
                             textHolder.setValue(textHolder.getValue() + split[1]);
                             ((Region)textHolder.getBean()).applyCss();
-                            updateYLastOffset((int)Math.round(20 + ((Region)textHolder.getBean()).getHeight()));
+                          //  updateYLastOffset((int)Math.round(20 + ((Region)textHolder.getBean()).getHeight()));
                         }
                 ));
                // int frameNo = textTimeline.getKeyFrames().size() - 1;
@@ -206,13 +206,19 @@ public class UiElementRenderer {
                         e -> {
                             textHolder.setValue(textHolder.getValue() + part);
                             ((Region)textHolder.getBean()).applyCss();
-                            updateYLastOffset((int)Math.round(20 + ((Region)textHolder.getBean()).getHeight()));
+                           // updateYLastOffset((int)Math.round(20 + ((Region)textHolder.getBean()).getHeight()));
                         }
                 ));
 
             }
 
-
+            textTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.millis(timeOffset + 5),
+                    e -> {
+                        uiHouse.redrawAll();
+                        // updateYLastOffset((int)Math.round(20 + ((Region)textHolder.getBean()).getHeight()));
+                    }
+            ));
         }
 
         textTimeline.playFromStart();
@@ -222,7 +228,9 @@ public class UiElementRenderer {
         Label label = new Label();
         handleElementStyleAndClass(current, label);
         ((Pane)root).getChildren().add(label);
-        label.relocate(10, getCurrentYOffset());
+        double currentFloorY = uiHouse.currentY();
+        label.relocate(10, currentFloorY);
+        uiHouse.addFloor(label);
 
         String what = current.getDisplayText();
         root.applyCss();
@@ -232,19 +240,18 @@ public class UiElementRenderer {
         } else {
             label.setText( what );
             label.applyCss();
-            currentYOffsets.add( (int)(20 + label.getHeight()));
+            uiHouse.redrawAll();
         }
 
 
     }
     private void renderMenu(UiElement current) {
         TextArea menuMessage = new TextArea();
-        System.out.println("Y is currently: " + getCurrentYOffset() + " elems: " + currentYOffsets.size());
-        currentYOffsets.add(30);
         renderMenuText(current, menuMessage,  current.getDisplayText()  + " " + root.widthProperty());
         ((Pane)root).getChildren().add(menuMessage);
         setMenuProperties(menuMessage, current);
-        menuMessage.relocate(10,  getCurrentYOffset());
+        menuMessage.relocate(10,  uiHouse.currentY());
+        uiHouse.addFloor(menuMessage);
         menuMessage.getStyleClass().add(current.getStyle().getHtmlClass() + "__text-area");
         menuMessage.applyCss();
         handleElementStyleAndClass(current, null);
@@ -252,25 +259,32 @@ public class UiElementRenderer {
 
         int i = 0;
         int optionCount = current.getChildrenCount();
+        boolean addAStore = true;
         for ( UiElement cmd : current.getChildren()) {
             Button button = new Button();
             button.setText(cmd.getDisplayText());
-            if ( cmd.getDisplayText().equals("Show description again")) {
-                button.relocate(0, -500);
-                continue;
-            }
+
+            if ( cmd.getDisplayText().equals("Show description again")) {button.relocate(0, -500);continue;}
+
             handleElementStyleAndClass(cmd, button);
             double width = root.getWidth();
             ((Pane)root).getChildren().add(button);
             button.setOnAction( action -> {
                 client.proceedWith(((Command) cmd).getResponseCommand());
             });
+
             if ( !cmd.getStyle().hasExplicitCssPositioning()) {
-                button.relocate((10 + width / optionCount) * i, getCurrentYOffset());
+                if ( addAStore ) {
+                    uiHouse.addFloor(button);
+                    addAStore = false;
+                } else {
+                    uiHouse.addToLastFloor(button);
+                }
+                button.relocate((10 + width / optionCount) * i, uiHouse.currentY());
                 i++;
                 if (i > 2) {
                     i = 0;
-                    currentYOffsets.add(40);
+                    addAStore = true;
                 }
             }
         }

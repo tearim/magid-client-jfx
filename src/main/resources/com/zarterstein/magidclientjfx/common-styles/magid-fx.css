@@ -6,7 +6,7 @@
 .story-button {
     -fx-cursor: hand;
     -fx-background-color: rgba(250, 230, 210, 0.1);
-    -fx-border-color: rgba(0, 159, 255, 0.3);
+    -fx-border-color: rgba(100, 159, 255, 0.3);
     -fx-border-width: 2px;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
@@ -33,7 +33,7 @@
      -mg-window-width: 800px;
      -mg-window-height: 720px;
      -mg-window-resizable: false;
-    -fx-background-image: url('file:///C:/developer/com.zarterstein/com/zarterstein/resources/alias-images/dark-sea-ai-gen.png');
+    -fx-background-image: url('file:///C:/developer/com.zarterstein/com/zarterstein/resources/aliasworld/bundle/images/dark-sea-ai-gen.png');
     -fx-background-repeat: stretch;
     -fx-background-size: cover;
     -fx-background-position: center;
@@ -51,7 +51,7 @@
     -fx-pref-height: 300px;
 }
 .second-scene-background {
- -fx-background-image: url('file:///C:/developer/com.zarterstein/com/zarterstein/resources/alias-images/dark-sea-fire-closer-ai-gen.png');
+ -fx-background-image: url('file:///C:/developer/com.zarterstein/com/zarterstein/resources/aliasworld/bundle/images/dark-sea-fire-closer-ai-gen.png');
 }
 
 .left-button {

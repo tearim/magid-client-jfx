@@ -53,7 +53,7 @@ public class MultiStoreUiRelocator {
         public double redrawStoreAndGetItsHeight(double newStoreFloor) {
             if ( tenants == null || tenants.isEmpty())
                 return 0;
-            Pane root = (Pane) tenants.getFirst().parentProperty().get();
+            Pane root = (Pane) tenants.getFirst().getParent();
             double effectiveHeight = 0;
             double currentElemHeight = 0;
             for ( Region tenant : tenants ) {
@@ -78,7 +78,7 @@ public class MultiStoreUiRelocator {
                 }
             }
 
-            root.layout();
+            if ( root != null ) root.layout();
             return lastHeight;
         }
         public boolean needSubsequentialRedraw() {
@@ -86,8 +86,10 @@ public class MultiStoreUiRelocator {
         }
     }
     private final List<Store> stores = new ArrayList<>();
-    private double gap = 15; // It would be better to delegate it to each store for better control over layout?
-
+    private double gap = 15;
+    private double currentLowestY = 0;// It would be better to delegate it to each store for better control over layout?
+    public MultiStoreUiRelocator() {
+    }
     public MultiStoreUiRelocator(Region firstTenant) {
         stores.add(new Store(firstTenant));
     }
@@ -107,10 +109,22 @@ public class MultiStoreUiRelocator {
     public void addToFloor(int floorNo, Region tenant) {
         stores.get(floorNo).getObjects().add(tenant);
     }
+    public void addToLastFloor(Region tenant) {
+        stores.getLast().getObjects().add(tenant);
+    }
     public void redrawAll() {
         double currentY = gap;
+        double currentLowestY = gap;
         for ( Store store : stores) {
             currentY += store.redrawStoreAndGetItsHeight(currentY) + gap;
         }
+        currentLowestY = currentY;
+    }
+    public double currentY() {
+        return currentLowestY;
+    }
+    public void vacate() {
+        stores.clear();
+        currentLowestY = gap;
     }
 }
