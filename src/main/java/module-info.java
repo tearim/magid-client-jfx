@@ -8,6 +8,9 @@ module com.example.magidclientjfx {
     requires sac;
     requires cssparser;
     requires jdk.xml.dom;
+    requires java.desktop;
+    requires javafx.media;
+    requires javafx.graphics;
 
     opens com.zarterstein.magidclientjfx to javafx.fxml;
     exports com.zarterstein.magidclientjfx;

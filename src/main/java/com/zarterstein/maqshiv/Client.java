@@ -1,9 +1,13 @@
 package com.zarterstein.maqshiv;
 
 import com.zarterstein.magidclientjfx.HelloApplication;
+import com.zarterstein.maqshiv.advanced.clientvars.ClientVar;
+import com.zarterstein.maqshiv.ui.Style;
 import com.zarterstein.maqshiv.ui.UiElementRenderer;
+import com.zarterstein.maqshiv.utils.PathToInputStream;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 import magid.connector.MagidConnector;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -21,9 +25,31 @@ public class Client {
     private UiElement root;
     private MagidConnector connector;
     private Pane responsePane;
+    private String responsePaneDefaultClassName;
+    private String underRootDefaultClassName;
+
     private boolean logCommunications = false;
     private Scene scene;
     private UiElementRenderer renderer;
+    private final Map<String, String> envVars = new HashMap<>();
+    public String getVar(String varName) {
+        return envVars.get(varName);
+    }
+    public void setVar(String varName, String varValue) {
+        envVars.put(varName, varValue);
+        ClientVar cVar = new ClientVar(varName, varValue);
+        cVar.process();
+    }
+    public boolean hasVar(String varName) {
+        return envVars.containsKey(varName);
+    }
+    public void clearVar(String varName) {
+        envVars.remove(varName);
+    }
+
+    public boolean isVar(String varName, String test) {
+        return hasVar(varName) && test.equals(getVar(varName));
+    }
 
     public Client(MagidConnector connector, Pane pane) {
         this.connector = connector;
@@ -32,6 +58,9 @@ public class Client {
         scene = HelloApplication.getMainScene();
         responsePane = pane;
         renderer = new UiElementRenderer(responsePane, scene, this);
+        ClientVar.setClient(this);
+        underRootDefaultClassName = "magid-outer-background";
+        responsePaneDefaultClassName = "magid-response-pane";
     }
     public Client(MagidConnector connector, Pane pane, String story) {
         this(connector, pane);
@@ -44,6 +73,11 @@ public class Client {
     public Scene getScene() {
         return scene;
     }
+
+    public Pane getResponsePane() {
+        return responsePane;
+    }
+
     public void enableLogging() {
         logCommunications = true;
     }
@@ -110,12 +144,29 @@ public class Client {
         return currentRoot;
     }
 
+    public String getUnderRootDefaultStyle() {
+        return underRootDefaultClassName;
+    }
+
+    public Client setUnderRootDefaultStyle(String underRootDefaultClassName) {
+        this.underRootDefaultClassName = underRootDefaultClassName;
+        return this;
+    }
+
+    public String getResponsePaneDefaultStyle() {
+        return responsePaneDefaultClassName;
+    }
+
+    public Client setResponsePaneDefaultStyle(String responsePaneDefaultClassName) {
+        this.responsePaneDefaultClassName = responsePaneDefaultClassName;
+        return this;
+    }
     private final Map<String, String> cssFileSources = new HashMap<>();
 
     private boolean wasCssAdded = false;
     public void addCssFile(String fileName) {
-        scene.getStylesheets().add(fileName);
-        cssFileSources.put(fileName, readResourceFileAsString(fileName) );
+        scene.getStylesheets().add(fileName + "?cmd=resolveMagidProtocol");
+        cssFileSources.put(fileName, readResourceFileAsString(fileName+ "?cmd=resolveMagidProtocol") );
         wasCssAdded = true;
     }
 
@@ -123,13 +174,10 @@ public class Client {
         return cssFileSources;
     }
 
-    private static InputStream getResourceFileAsInputStream(String fileName) {
-        ClassLoader classLoader = Client.class.getClassLoader();
-        return classLoader.getResourceAsStream(fileName);
-    }
 
-    public static String readResourceFileAsString(String fileName) {
-        try (InputStream is = getResourceFileAsInputStream(fileName)) {
+
+    public String readResourceFileAsString(String fileName) {
+        try (InputStream is = PathToInputStream.get(fileName)) {
             if (is == null) {
                 throw new IllegalArgumentException("Resource not found: " + fileName);
             }

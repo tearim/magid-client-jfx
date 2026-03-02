@@ -11,6 +11,13 @@ public class Narration extends UiElement {
         String name = object.containsKey("narration")?object.getString("narration"):object.getString("text");
         setDisplayText(name);
         getStyle().applyFromJson(object, "");
+        if ( object.containsKey("defer") ) {
+            try {
+                setDefer(Long.parseLong(object.getString("defer")));
+            } catch ( NumberFormatException e ) {
+                setDefer(0);
+            }
+        }
         return this;
     }
 }

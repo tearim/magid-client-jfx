@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MultiStoreUiRelocator {
+
     class Store {
         private double floor;
         private double lastHeight;
@@ -123,6 +124,12 @@ public class MultiStoreUiRelocator {
     public double currentY() {
         return currentLowestY;
     }
+
+    public double getXOffset() {
+        return 10f;
+    }
+
+
     public void vacate() {
         stores.clear();
         currentLowestY = gap;

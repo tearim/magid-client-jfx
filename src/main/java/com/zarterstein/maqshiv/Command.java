@@ -39,8 +39,21 @@
     public Command createFromJson(JsonObject jObj) {
         setDescription(UiElement.getStringIfSet(jObj, "command-description"));
         setResponseCommand(UiElement.getStringIfSet(jObj, "command-name"));
+        getStyle().setDefaultHtmlClass("magid-common-button");
         getStyle().applyFromJson(jObj, "command-");
+        if ( jObj.containsKey("command-defer") ) {
+            try {
+                setDefer(Long.parseLong(jObj.getString("command-defer")));
+            } catch ( NumberFormatException e ) {
+                setDefer(0);
+            }
+        }
+
         return this;
     }
 
-}
+        public void setDefaultHtmlPositioningClassName(int buttonCount, int i) {
+            String defString = "button-"+i+"-of-"+buttonCount;
+            getStyle().setDefaultHtmlClass(getStyle().getDefaultHtmlClass() + " " + defString);
+        }
+    }

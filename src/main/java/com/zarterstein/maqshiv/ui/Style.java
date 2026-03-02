@@ -16,14 +16,14 @@ public class Style {
     private String css;
     private String htmlClass;
     private String imageLink;
-    private String computedCss;
     private UiElement owner;
+    private String defaultHtmlClass;
 
     private final Map<String, String> cssDeclarations = new HashMap<>();
     private boolean hasHoveredItems = false;
 
     public Style(UiElement owner) {
-        css = htmlClass = imageLink = "";
+        css = htmlClass = imageLink = defaultHtmlClass = "";
         this.owner = owner;
     }
     public Style(UiElement owner, String css, String htmlClass, String imageLink) {
@@ -128,7 +128,12 @@ public class Style {
         }
         return 0;
     }
-
+    public String getDefaultHtmlClass() {
+        return defaultHtmlClass;
+    }
+    public void setDefaultHtmlClass(String defaultHtmlClass) {
+        this.defaultHtmlClass = defaultHtmlClass;
+    }
     public static String cssToFxCss(String css) {
         if ( css == null || css.isEmpty()) return "";
 
@@ -169,7 +174,8 @@ public class Style {
             return;
         }
         for ( String key : owner.getClient().getCssFileSources().keySet() ) {
-            for ( String classKey :  htmlClass.trim().split(" ") ) if (!classKey.isEmpty()) {
+            String relevantHtmlClassNames = htmlClass + " " + defaultHtmlClass;
+            for ( String classKey :  relevantHtmlClassNames.trim().split(" ") ) if (!classKey.isEmpty()) {
                 //System.out.println("I will search for " + classKey + " in " + key );
                 addCssDefinitions(classKey, owner.getClient().getCssFileSources().get(key));
             }

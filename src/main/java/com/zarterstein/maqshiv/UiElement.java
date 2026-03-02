@@ -21,6 +21,7 @@ public abstract class UiElement {
     private Client client;
     private Region region;
     private Control control;
+    private long defer;
 
 
     public UiElement() {
@@ -138,15 +139,24 @@ public abstract class UiElement {
     public Control getControl() {
         return control;
     }
-
+    public long getDefer() {
+        return defer;
+    }
+    public void setDefer(long defer) {
+        this.defer = defer;
+    }
+    public boolean isDeferred()  {
+        return defer > 0;
+    }
     public void applyRegionStyleClasses() {
-        _applyStyleClassesToObject(region);
+        _applyStyleClassesToObject(region, "");
     }
     public void applyControlStyleClasses() {
-        _applyStyleClassesToObject(control);
+        _applyStyleClassesToObject(control, style.getDefaultHtmlClass());
     }
-    private void _applyStyleClassesToObject(Region _region) {
-        String classes = style.getHtmlClass().trim();
+    private void _applyStyleClassesToObject(Region _region, String defaultClassName) {
+        _region.getStyleClass().clear();
+        String classes = (style.getDefaultHtmlClass() + " " + style.getHtmlClass()).trim();
         if ( classes.contains(" ")) {
             for ( String className : classes.split(" ")) if ( !className.isEmpty()) {
                 _region.getStyleClass().add(className);

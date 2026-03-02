@@ -12,9 +12,18 @@ public class MagidConnector {
     String baseURL;
     String request;
     URLConnection connection;
+    public static String MAGID_ANCHOR = "magid://";
 
     public MagidConnector(String baseURL) {
         this.baseURL = baseURL;
+    }
+
+    public String getBaseURL(){
+        return baseURL;
+    }
+
+    public String resolveAnchor(String resource){
+        return resource.replace(MAGID_ANCHOR, baseURL);
     }
 
     public void connect()  {
@@ -51,7 +60,7 @@ public class MagidConnector {
         } catch (IOException exception) {
 
         }
-        return response.toString();
+        return resolveAnchor(response.toString());
     }
 
 

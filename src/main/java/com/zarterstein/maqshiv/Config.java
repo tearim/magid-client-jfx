@@ -2,7 +2,9 @@ package com.zarterstein.maqshiv;
 
 import javax.json.JsonObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Config extends UiElement {
     public Config() {
@@ -32,12 +34,10 @@ public class Config extends UiElement {
         for ( String name : config.keySet()) {
             if ( name.equals("css-files")) {
                 processCssFiles(config.getString(name));
-            } else
-                System.out.println(name + ": " + config.get(name));
+            } else {
+                getClient().setVar(name, config.getString(name));
+            }
         }
-        /* String name = object.containsKey("narration")?object.getString("narration"):object.getString("text");
-        setDisplayText(name);
-        getStyle().applyFromJson(object, ""); */
         return this;
     }
 }
