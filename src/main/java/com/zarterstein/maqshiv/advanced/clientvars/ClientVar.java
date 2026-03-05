@@ -1,6 +1,5 @@
 package com.zarterstein.maqshiv.advanced.clientvars;
 
-import com.zarterstein.magidclientjfx.HelloApplication;
 import com.zarterstein.maqshiv.Client;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;

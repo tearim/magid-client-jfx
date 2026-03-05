@@ -3,6 +3,7 @@ package com.zarterstein.maqshiv.ui;
 import com.steadystate.css.parser.CSSOMParser;
 import com.steadystate.css.parser.SACParserCSS3;
 import com.zarterstein.maqshiv.UiElement;
+import com.zarterstein.maqshiv.utils.JsonUtils;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.css.*;
 
@@ -39,10 +40,10 @@ public class Style {
 
     public void applyFromJson(JsonObject jObj, String prefix) {
         setCssDeclarations();
-        css = cssToFxCss( UiElement.getStringIfSet(jObj, prefix + "css"));
+        css = cssToFxCss( JsonUtils.getStringIfSet(jObj, prefix + "css"));
         setCssDeclarations();
-        htmlClass =  UiElement.getStringIfSet(jObj, prefix + "class");
-        imageLink =  UiElement.getStringIfSet(jObj, prefix + "image");
+        htmlClass =  JsonUtils.getStringIfSet(jObj, prefix + "class");
+        imageLink =  JsonUtils.getStringIfSet(jObj, prefix + "image");
         applyComputedStylesFromLoadedCSSFiles();
     }
 

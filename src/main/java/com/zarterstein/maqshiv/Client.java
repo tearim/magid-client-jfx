@@ -1,13 +1,11 @@
 package com.zarterstein.maqshiv;
 
-import com.zarterstein.magidclientjfx.HelloApplication;
+import com.zarterstein.magidclientjfx.MagidClientApplication;
 import com.zarterstein.maqshiv.advanced.clientvars.ClientVar;
-import com.zarterstein.maqshiv.ui.Style;
 import com.zarterstein.maqshiv.ui.UiElementRenderer;
 import com.zarterstein.maqshiv.utils.PathToInputStream;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import magid.connector.MagidConnector;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -55,7 +53,7 @@ public class Client {
         this.connector = connector;
         storyToParse = "";
         ResponseNodeType.setClient(this);
-        scene = HelloApplication.getMainScene();
+        scene = MagidClientApplication.getMainScene();
         responsePane = pane;
         renderer = new UiElementRenderer(responsePane, scene, this);
         ClientVar.setClient(this);

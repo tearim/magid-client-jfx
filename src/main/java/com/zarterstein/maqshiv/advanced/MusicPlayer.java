@@ -53,9 +53,13 @@ public class MusicPlayer {
     }
 
     public void play() {
-        AudioClip audioClip = new AudioClip(fileName);
-        audioClip.setVolume(volume);
-        audioClip.play();
+        try {
+            AudioClip audioClip = new AudioClip(fileName);
+            audioClip.setVolume(volume);
+            audioClip.play();
+        } catch (Exception e) {
+            System.out.println("Error playing music: " + e.getMessage());
+        }
     }
 
 
