@@ -186,4 +186,8 @@ public class Client {
             throw new RuntimeException("Failed to read resource file: " + fileName, e);
         }
     }
+
+    public UiElementRenderer getRenderer() {
+        return renderer;
+    }
 }

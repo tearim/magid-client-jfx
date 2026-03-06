@@ -27,6 +27,8 @@ public class UiElementRenderer {
     private final Client client;
     private UiElement uiElementRoot;
     private final MultiStoreUiRelocator uiHouse = new MultiStoreUiRelocator();
+    private boolean ingoreTexttimelines = false;
+    private boolean ingoreTimelines = false;
 
     boolean useTextTimeline = false;
     int timeOffset = 0;
@@ -150,8 +152,12 @@ public class UiElementRenderer {
             new Thread( () -> {
                 final long blockedMillisLong = blockedMillis.stream().mapToLong(Long::longValue).sum() + defer;
                 try {
-                  Thread.sleep(blockedMillisLong);
-                  Platform.runLater( () -> {
+                    if ( ingoreTimelines) {
+                        Thread.sleep(1 );
+                    }else  {
+                        Thread.sleep(blockedMillisLong);
+                    }
+                    Platform.runLater( () -> {
                        if ( callFrame != currentFrame ) {
                            return;
                        }
@@ -160,7 +166,7 @@ public class UiElementRenderer {
                            blockedMillis.removeLast();
                        }
                        blockedByTransition = !blockedMillis.isEmpty();
-                   });
+                    });
 
                } catch (InterruptedException e ) {
                    System.out.println(e.getMessage());
@@ -184,7 +190,11 @@ public class UiElementRenderer {
                 String[] split = part.split("@", 2);
                 //if (!DEBUG_NARRATION)
                 try {
-                    millis = Integer.parseInt(split[0]);
+                    if  (ingoreTexttimelines) {
+                        millis = 1;
+                    } else {
+                        millis = Integer.parseInt(split[0]);
+                    }
                     timeOffset += millis;
                 } catch (Exception e) {
                     //
@@ -355,6 +365,13 @@ public class UiElementRenderer {
         element.processStyles();
 
 
+    }
+
+    public void setIngoreTimelines(boolean really) {
+        ingoreTimelines =  really;
+    }
+    public void setIngoreTexttimelines(boolean really) {
+        ingoreTexttimelines = really;
     }
 
     public UiElementRenderer(Region root, Scene scene, Client client) {
