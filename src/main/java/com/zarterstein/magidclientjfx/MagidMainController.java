@@ -90,6 +90,7 @@ public class MagidMainController {
         client = new Client(connector, responsePane);
         client.getRenderer().setIngoreTexttimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretexttimelines"));
         client.getRenderer().setIngoreTimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretimelines"));
+        client.getRenderer().setIgnoreMaximization(OptionsController.getCurrentSettingAsBoolean("viewport.ignoremaximization"));
         client.enableLogging();
         client.beginStory("");
     }

@@ -73,7 +73,10 @@ public class OptionsController {
     @FXML
     private CheckBox ignoreTextTimelines;
     @FXML
+    private CheckBox ignoreViewPortMaximization;
+    @FXML
     private Label currentXmlInfo;
+
 
     private MagidMainController  mainController;
     private static final List<XmlsData> xmlsList = new ArrayList<>();
@@ -116,6 +119,12 @@ public class OptionsController {
             currentSettings.put("narration.ignoretexttimelines", newValue);
             client.getRenderer().setIngoreTexttimelines(newValue);
         });
+        ignoreViewPortMaximization.setSelected(PrefHelper.getBoolean("viewport.ignoremaximization"));
+        ignoreViewPortMaximization.selectedProperty().addListener((ov, oldValue, newValue) -> {
+            currentSettings.put("viewport.ignoremaximization", newValue);
+            client.getRenderer().setIgnoreMaximization(newValue);
+        });
+
     }
 
     private static final Map<String, Object> currentSettings = new HashMap<>();
@@ -165,6 +174,7 @@ public class OptionsController {
         map.put("music.volume", PrefHelper.getDouble("music.volume"));
         map.put("narration.ignoretimelines", PrefHelper.getBoolean("narration.ignoretimelines"));
         map.put("narration.ignoretexttimelines", PrefHelper.getBoolean("narration.ignoretexttimelines"));
+        map.put("viewport.ignoremaximization", PrefHelper.getBoolean("viewport.ignoremaximization"));
         map.put("story.xml", PrefHelper.get("story.xml"));
     }
     public static void initSettings() {
@@ -212,6 +222,7 @@ public class OptionsController {
         PrefHelper.setDouble("music.volume", musicSlider.getValue());
         PrefHelper.setBoolean("narration.ignoretimelines", ignoreTimelines.isSelected());
         PrefHelper.setBoolean("narration.ignoretexttimelines", ignoreTextTimelines.isSelected());
+        PrefHelper.setBoolean("viewport.ignoremaximization", ignoreViewPortMaximization.isSelected());
         PrefHelper.set("story.xml", xmlListChoiceBox.getValue().path);
         restoreOnExit = false;
         close();

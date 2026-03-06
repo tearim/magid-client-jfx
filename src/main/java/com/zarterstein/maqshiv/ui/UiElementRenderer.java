@@ -29,6 +29,7 @@ public class UiElementRenderer {
     private final MultiStoreUiRelocator uiHouse = new MultiStoreUiRelocator();
     private boolean ingoreTexttimelines = false;
     private boolean ingoreTimelines = false;
+    private boolean ingoreViewPortMaximization = false;
 
     boolean useTextTimeline = false;
     int timeOffset = 0;
@@ -372,6 +373,13 @@ public class UiElementRenderer {
     }
     public void setIngoreTexttimelines(boolean really) {
         ingoreTexttimelines = really;
+    }
+
+    public void setIgnoreMaximization(boolean really) {
+        ingoreViewPortMaximization = really;
+    }
+    public boolean getIgnoreMaximization() {
+        return ingoreViewPortMaximization;
     }
 
     public UiElementRenderer(Region root, Scene scene, Client client) {

@@ -46,7 +46,9 @@ public class ClientVar {
     private static void processViewPort(String varName, String varValue) {
         if ( varValue == null || varValue.isEmpty()) return;
         Scene scene = client.getScene();
-        ((Stage)scene.getWindow()).setMaximized(varValue.equals("maximized"));
+        if ( !client.getRenderer().getIgnoreMaximization()) {
+            ((Stage) scene.getWindow()).setMaximized(varValue.equals("maximized"));
+        }
     }
 
 
@@ -97,7 +99,7 @@ public class ClientVar {
 
         switch (posY) {
             case "center":
-                System.out.println("I was here too.");
+              //  System.out.println("I was here too.");
                 outerPane.heightProperty().addListener((observable, oldValue, newValue) -> {
                     centeredPosition(innerPane, FOR_Y);
                 });
