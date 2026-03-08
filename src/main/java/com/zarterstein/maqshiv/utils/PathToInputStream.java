@@ -23,7 +23,7 @@ public class PathToInputStream {
                 URL url = new URL(fileName);
                 return url.openStream();
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                System.out.println("Cannot load the resource:" + e.getMessage());
             }
 
         }
