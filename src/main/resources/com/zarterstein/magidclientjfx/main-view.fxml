@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import java.net.URL?>
 <VBox alignment="TOP_CENTER" prefHeight="800" prefWidth="800" spacing="20.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.zarterstein.magidclientjfx.MagidMainController">
     <stylesheets>
         <URL value="@common-styles/fx.utility.css" />
     </stylesheets>
    <Pane prefHeight="34.0" prefWidth="800.0">
       <children>
-           <Button onAction="#onReloadServerXmlClick" text="Reset server" styleClass="text-sky-50, rounded-12, bg-violet-900, cursor-hand" />
+           <Button onAction="#onReloadServerXmlClick" styleClass="text-sky-50, rounded-12, bg-violet-900, cursor-hand" text="Reset server" />
            <Button layoutX="88.0" onAction="#onEstablishConnectionClick" text="Establish Connection to the Server" />
-         <Button layoutX="742.0" mnemonicParsing="false" text="Options" onAction="#showOptionsMenu" />
+         <Button layoutX="742.0" mnemonicParsing="false" onAction="#showOptionsMenu" text="Options" />
+         <Label fx:id="statusLabel" layoutX="301.0" layoutY="4.0" prefHeight="17.0" prefWidth="377.0" />
       </children>
    </Pane>
-    <Pane fx:id="effectPane" prefHeight="748.0" prefWidth="800.0">
+    <Pane fx:id="effectPane" prefHeight="793.0" prefWidth="800.0">
         <Pane fx:id="responsePane" prefHeight="500.0" />
     </Pane>
 </VBox>

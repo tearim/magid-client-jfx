@@ -4,7 +4,6 @@ import com.zarterstein.maqshiv.Client;
 import com.zarterstein.maqshiv.utils.JsonUtils;
 import com.zarterstein.prefs.PrefHelper;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -162,12 +161,13 @@ public class OptionsController {
         return 0;
     }
 
-    public void requestXml()  {
+    public void requestSelectedXml()  {
         XmlsData current = xmlListChoiceBox.getValue();
-        String request = "set-xml&path=" + current.path;
         setXmlStatusOnLabel(xmlListChoiceBox.getValue().toString());
-        String response = connector.getResponse(request);
-        System.out.println("Response: " + response);
+        String response = connector.requestXml(current.path);
+        if ( JsonUtils.getStringIfSet(response, "status").equals("The server was reloaded.") ) {
+            mainController.showMessage("The server has been reloaded");
+        }
     }
     private static void putSettingsIntoMap(Map<String, Object> map) {
         map.put("server.address", PrefHelper.get("server.address"));

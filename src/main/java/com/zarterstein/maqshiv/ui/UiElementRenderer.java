@@ -322,7 +322,7 @@ public class UiElementRenderer {
         }
     }
     private void setMenuProperties(TextArea menuMessage, UiElement element) {
-        menuMessage.getStyleClass().add("textarea.magid-menu-textarea");
+        menuMessage.getStyleClass().add("magid-menu-textarea");
         if (element != null ) {
 
             if ( !client.isVar("view-port", "maximized") && element.getStyle().isCssPropertyPresent("-mg-window-width") )  {
@@ -344,7 +344,7 @@ public class UiElementRenderer {
         }
         menuMessage.setWrapText(true);
         menuMessage.setEditable(false);
-        menuMessage.setPrefWidth(600);
+        //menuMessage.setPrefWidth(600);
         menuMessage.setPrefHeight(450);
         menuMessage.setPrefRowCount(6);
     }

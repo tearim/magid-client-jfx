@@ -59,6 +59,7 @@ public class Client {
         ClientVar.setClient(this);
         underRootDefaultClassName = "magid-outer-background";
         responsePaneDefaultClassName = "magid-response-pane";
+        clearCssFiles();
     }
     public Client(MagidConnector connector, Pane pane, String story) {
         this(connector, pane);
@@ -166,6 +167,11 @@ public class Client {
         scene.getStylesheets().add(fileName + "?cmd=resolveMagidProtocol");
         cssFileSources.put(fileName, readResourceFileAsString(fileName+ "?cmd=resolveMagidProtocol") );
         wasCssAdded = true;
+    }
+
+    public void clearCssFiles()  {
+        cssFileSources.clear();
+        scene.getStylesheets().clear();
     }
 
     public Map<String, String> getCssFileSources() {

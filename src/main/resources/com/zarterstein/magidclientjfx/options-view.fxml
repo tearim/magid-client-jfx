@@ -28,7 +28,7 @@
       <CheckBox fx:id="ignoreTimelines" layoutX="243.0" layoutY="160.0" mnemonicParsing="false" />
       <CheckBox fx:id="ignoreTextTimelines" layoutX="243.0" layoutY="200.0" mnemonicParsing="false" />
       <CheckBox fx:id="ignoreViewPortMaximization" layoutX="243.0" layoutY="240.0" mnemonicParsing="false" />
-      <Button layoutX="59.0" layoutY="280.0" mnemonicParsing="false" onAction="#requestXml" prefHeight="25.0" prefWidth="133.0" text="Apply selected XML" />
+      <Button layoutX="59.0" layoutY="280.0" mnemonicParsing="false" onAction="#requestSelectedXml" prefHeight="25.0" prefWidth="133.0" text="Apply selected XML" />
       <Button layoutX="243.0" layoutY="280.0" mnemonicParsing="false" onAction="#savePreferences" prefHeight="25.0" prefWidth="170.0" text="Save&amp;Close Preferences" />
    </children>
 </Pane>

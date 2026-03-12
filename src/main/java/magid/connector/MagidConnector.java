@@ -90,6 +90,11 @@ public class MagidConnector {
         return resolveAnchor(response.toString());
     }
 
+    public String requestXml(String xmlPath) {
+        String request = "set-xml&path=" + xmlPath;
+        return getResponse(request);
+    }
+
     public JsonArray getXmlList() {
         String response = getResponse("list-xmls");
         JsonReader json = Json.createReader(new StringReader(response));
