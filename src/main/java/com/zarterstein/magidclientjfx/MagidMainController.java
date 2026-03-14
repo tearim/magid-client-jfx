@@ -2,6 +2,7 @@ package com.zarterstein.magidclientjfx;
 
 import com.zarterstein.maqshiv.Client;
 import com.zarterstein.maqshiv.utils.JsonUtils;
+import com.zarterstein.prefs.PrefHelper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,7 +22,8 @@ import java.io.Reader;
 
 public class MagidMainController {
     private MagidConnector connector;
-    private String baseUrl4Magid = "http://localhost:8090";
+    public String DEFAULT_MAGID_ADDRESS = "http://localhost:8090";
+    private String baseUrl4Magid = DEFAULT_MAGID_ADDRESS;
     public static int DEFAULT_MESSAGE_SHOW_TIME = 5000;
 
     @FXML
@@ -35,7 +37,9 @@ public class MagidMainController {
 
     @FXML
     private Pane responsePane;
-
+    private boolean showingOptions = false;
+    private Stage optionsStage;
+    private String serverWorkingXmlPath = "";
 
     @FXML
     protected void onReloadServerXmlClick() {
@@ -59,8 +63,7 @@ public class MagidMainController {
         }
     }
 
-    private boolean showingOptions = false;
-    private Stage optionsStage;
+
     public void noMoreShowingOptions() {
         showingOptions = false;
         optionsStage = null;
@@ -89,17 +92,34 @@ public class MagidMainController {
         }
     }
     public void init(String xmlToLoad, boolean doLoad) {
-        System.out.println(xmlToLoad);
         if ( xmlToLoad.isEmpty() ) {
             return;
         }
+        baseUrl4Magid = getServerUrl();
         if ( connector == null ) {
             connector = new MagidConnector(baseUrl4Magid);
-            connector.requestXml(xmlToLoad);
+            try {
+                connector.setSilentConnectionErrors(true);
+                JsonObject status = JsonUtils.fromString(connector.serverStatus());
+                connector.setSilentConnectionErrors(false);
+                if (status != null) {
+                    serverWorkingXmlPath = JsonUtils.getStringIfSet(status, "xmlPath");
+                }
+                if (doLoad) {
+                    connector.requestXml(xmlToLoad);
+                }
+            } catch (Exception e) {
+                showMessage("Could not connect to " + baseUrl4Magid);
+            }
             //client = new Client(connector, responsePane);
         }
     }
 
+    protected String getServerUrl() {
+        return PrefHelper.get("server.address").trim().isEmpty()
+                ?DEFAULT_MAGID_ADDRESS
+                : PrefHelper.get("server.address");
+    }
     @FXML
     protected void onEstablishConnectionClick() {
 
@@ -118,9 +138,7 @@ public class MagidMainController {
                 effectPane.widthProperty()
         );
         OptionsController.initSettings();
-        baseUrl4Magid = OptionsController.getCurrentSetting("server.address").trim().isEmpty()
-                    ?"http://localhost:8090"
-                    : OptionsController.getCurrentSetting("server.address");
+        baseUrl4Magid = getServerUrl();
 
         System.out.println("Connecting to Magid server @"+baseUrl4Magid);
         connector = new MagidConnector(baseUrl4Magid);
@@ -131,6 +149,8 @@ public class MagidMainController {
         client.enableLogging();
         client.beginStory("");
     }
+
+
     private int messageNo = 0;
     public void showMessage (String message ) {
         showMessage(message, DEFAULT_MESSAGE_SHOW_TIME);
@@ -195,4 +215,7 @@ public class MagidMainController {
         }).start();
     }
 
+    public String getServerWorkingXmlPath() {
+        return serverWorkingXmlPath;
+    }
 }

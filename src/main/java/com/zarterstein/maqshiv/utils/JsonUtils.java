@@ -15,11 +15,19 @@ public class JsonUtils {
 
     public static String getStringIfSet(String jsonString, String key) {
         try {
-            JsonReader jR = Json.createReader(Reader.of(jsonString));
-            JsonObject jO = jR.read().asJsonObject();
-            return getStringIfSet(jO, key);
+            JsonObject jO = fromString(jsonString);
+            return jO==null?"":getStringIfSet(jO, key);
         } catch (Exception e) {
             return "";
+        }
+    }
+
+    public static JsonObject fromString(String jsonString) {
+        try {
+            JsonReader jR = Json.createReader(Reader.of(jsonString));
+            return jR.read().asJsonObject();
+        } catch (Exception e) {
+            return null;
         }
     }
 }

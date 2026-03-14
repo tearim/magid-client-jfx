@@ -9,7 +9,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.zarterstein.magidclientjfx.OptionsController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="468.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.zarterstein.magidclientjfx.OptionsController">
     <stylesheets>
         <URL value="@common-styles/fx.utility.css" />
     </stylesheets>
@@ -20,7 +20,8 @@
       <Label layoutX="59.0" layoutY="160.0" prefHeight="17.0" prefWidth="152.0" text="Ignore timelines" />
       <Label layoutX="59.0" layoutY="200.0" prefHeight="17.0" prefWidth="152.0" text="Ignore text timelines " />
       <Label layoutX="59.0" layoutY="240.0" prefHeight="17.0" prefWidth="152.0" text="Ignore window maximizing" />
-      <Label layoutX="59.0" layoutY="340.0" prefHeight="17.0" prefWidth="463.0" text="Currently armed XML: " fx:id="currentXmlInfo" />
+      <Label layoutX="59.0" layoutY="280.0" prefHeight="17.0" prefWidth="163.0" text="Arm server's XML on startup" />
+      <Label fx:id="currentXmlInfo" layoutX="59.0" layoutY="380.0" prefHeight="17.0" prefWidth="463.0" text="Currently armed XML: " />
 
       <TextField fx:id="magidServerAddress" layoutX="243.0" layoutY="36.0" prefHeight="25.0" prefWidth="241.0" />
       <Slider fx:id="musicSlider" layoutX="243.0" layoutY="82.0" prefHeight="14.0" prefWidth="182.0" />
@@ -28,7 +29,8 @@
       <CheckBox fx:id="ignoreTimelines" layoutX="243.0" layoutY="160.0" mnemonicParsing="false" />
       <CheckBox fx:id="ignoreTextTimelines" layoutX="243.0" layoutY="200.0" mnemonicParsing="false" />
       <CheckBox fx:id="ignoreViewPortMaximization" layoutX="243.0" layoutY="240.0" mnemonicParsing="false" />
-      <Button layoutX="59.0" layoutY="280.0" mnemonicParsing="false" onAction="#requestSelectedXml" prefHeight="25.0" prefWidth="133.0" text="Apply selected XML" />
-      <Button layoutX="243.0" layoutY="280.0" mnemonicParsing="false" onAction="#savePreferences" prefHeight="25.0" prefWidth="170.0" text="Save&amp;Close Preferences" />
+      <CheckBox fx:id="armXmlOnStartup" layoutX="243.0" layoutY="280.0" mnemonicParsing="false" />
+      <Button layoutX="59.0" layoutY="320.0" mnemonicParsing="false" onAction="#requestSelectedXml" prefHeight="25.0" prefWidth="133.0" text="Apply selected XML" />
+      <Button layoutX="243.0" layoutY="320.0" mnemonicParsing="false" onAction="#savePreferences" prefHeight="25.0" prefWidth="170.0" text="Save&amp;Close Preferences" />
    </children>
 </Pane>

@@ -75,6 +75,8 @@ public class OptionsController {
     private CheckBox ignoreViewPortMaximization;
     @FXML
     private Label currentXmlInfo;
+    @FXML
+    private CheckBox armXmlOnStartup;
 
 
     private MagidMainController  mainController;
@@ -122,6 +124,12 @@ public class OptionsController {
         ignoreViewPortMaximization.selectedProperty().addListener((ov, oldValue, newValue) -> {
             currentSettings.put("viewport.ignoremaximization", newValue);
             client.getRenderer().setIgnoreMaximization(newValue);
+        });
+
+        armXmlOnStartup.setSelected(PrefHelper.getBoolean("startup.arm.xml"));
+        armXmlOnStartup.selectedProperty().addListener((ov, oldValue, newValue) -> {
+            currentSettings.put("startup.arm.xml", newValue);
+
         });
 
     }
@@ -176,6 +184,7 @@ public class OptionsController {
         map.put("narration.ignoretexttimelines", PrefHelper.getBoolean("narration.ignoretexttimelines"));
         map.put("viewport.ignoremaximization", PrefHelper.getBoolean("viewport.ignoremaximization"));
         map.put("story.xml", PrefHelper.get("story.xml"));
+        map.put("startup.arm.xml", PrefHelper.get("startup.arm.xml"));
     }
     public static void initSettings() {
         putSettingsIntoMap(currentSettings);
@@ -194,12 +203,10 @@ public class OptionsController {
     public void connect() {
         connector.setSilentConnectionErrors(true);
         try {
-            JsonArray jsonArray = connector.getXmlList();
-            connector.setSilentConnectionErrors(false);
             xmlsList.clear();
+            JsonArray jsonArray = connector.getXmlList();
             for (JsonValue jsonValue : jsonArray) {
                 JsonObject object = jsonValue.asJsonObject();
-
                 XmlsData newItem = new XmlsData(JsonUtils.getStringIfSet(object,"name"), JsonUtils.getStringIfSet(object,"description"), JsonUtils.getStringIfSet(object,"path"), JsonUtils.getStringIfSet(object,"absolutePath"));
                 xmlListChoiceBox.getItems().add(newItem);
                 xmlsList.add(newItem);
@@ -207,8 +214,9 @@ public class OptionsController {
             }
             xmlListChoiceBox.setValue(new XmlsData(PrefHelper.get("story.xml")));
         } catch (Exception ex) {
-            System.out.println("Error: " + ex.getMessage());
             // Means that the server is misconfigg'ed. That can happen.
+            System.out.println("Error: " + ex.getMessage());
+            mainController.showMessage(ex.getMessage());
         }
         connector.setSilentConnectionErrors(false);
     }
@@ -223,14 +231,22 @@ public class OptionsController {
         PrefHelper.setBoolean("narration.ignoretimelines", ignoreTimelines.isSelected());
         PrefHelper.setBoolean("narration.ignoretexttimelines", ignoreTextTimelines.isSelected());
         PrefHelper.setBoolean("viewport.ignoremaximization", ignoreViewPortMaximization.isSelected());
-        PrefHelper.set("story.xml", xmlListChoiceBox.getValue().path);
+        PrefHelper.setBoolean("startup.arm.xml", armXmlOnStartup.isSelected());
+        if ( xmlListChoiceBox != null && xmlListChoiceBox.getValue() != null ) {
+            PrefHelper.set("story.xml", xmlListChoiceBox.getValue().path);
+        }
         restoreOnExit = false;
         close();
     }
 
     public Stage show(Scene scene) throws IOException {
-        connect();
-        setXmlStatusOnLabel(xmlListChoiceBox.getValue().toString());
+        try {
+            connect();
+            setXmlStatusOnLabel(xmlListChoiceBox.getValue().toString());
+        } catch (Exception ex) {
+            //
+        }
+
         stage = new Stage();
         stage.setTitle("Magid Options");
         stage.setResizable(false);

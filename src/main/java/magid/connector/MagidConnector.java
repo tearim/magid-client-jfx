@@ -14,7 +14,10 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 public class MagidConnector {
     URL url;
@@ -42,9 +45,23 @@ public class MagidConnector {
     public void setSilentConnectionErrors(boolean silentConnectionErrors) {
         this.silentConnectionErrors = silentConnectionErrors;
     }
+    private void connect(String request, Map<String, String> moreParams) {
+        StringBuilder url = new StringBuilder(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8));
+        for ( Map.Entry<String, String> entry : moreParams.entrySet()) {
+            url.append("&").append(entry.getKey()).append("=").append(
+                 URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8)
+            );
+        }
+        _connect(url.toString());
+
+    }
     private void connect(String request) {
+        _connect(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8));
+    }
+    private void _connect(String urlString) {
         try {
-            url = new URL(baseURL + "?cmd=" + request);
+
+            url = new URL(urlString);
             connection = url.openConnection();
             connection.connect();
         }
@@ -74,9 +91,16 @@ public class MagidConnector {
         return getResponse("");
     }
 
-
+    public String getResponse(String command, Map<String, String> moreParams) {
+        connect(command, moreParams);
+        return _getResponse();
+    }
     public String getResponse(String command) {
         connect(command);
+        return _getResponse();
+    }
+    private String _getResponse() {
+
         StringBuilder response = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -85,14 +109,18 @@ public class MagidConnector {
                 response.append(tempLine);
             }
         } catch (IOException exception) {
-
+            System.out.println(exception.getMessage());
         }
         return resolveAnchor(response.toString());
     }
 
     public String requestXml(String xmlPath) {
-        String request = "set-xml&path=" + xmlPath;
-        return getResponse(request);
+        String request = "set-xml";
+        return getResponse(request, Map.of("path", xmlPath));
+    }
+
+    public String serverStatus() {
+        return getResponse("server-status");
     }
 
     public JsonArray getXmlList() {

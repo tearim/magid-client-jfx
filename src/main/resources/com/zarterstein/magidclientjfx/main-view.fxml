@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -12,13 +13,33 @@
     </stylesheets>
    <Pane prefHeight="34.0" prefWidth="800.0">
       <children>
-           <Button onAction="#onReloadServerXmlClick" styleClass="text-sky-50, rounded-12, bg-violet-900, cursor-hand" text="Reset server" />
-           <Button layoutX="88.0" onAction="#onEstablishConnectionClick" text="Establish Connection to the Server" />
-         <Button layoutX="742.0" mnemonicParsing="false" onAction="#showOptionsMenu" text="Options" />
-         <Label fx:id="statusLabel" layoutX="301.0" layoutY="4.0" prefHeight="17.0" prefWidth="377.0" />
+           <Button onAction="#onReloadServerXmlClick" text="Reset server">
+            <styleClass>
+               <String fx:value="rounded-4" />
+               <String fx:value="bg-rounded-4" />
+               <String fx:value="bg-amber-100" />
+               <String fx:value="cursor-hand" />
+               <String fx:value="text-sky-700" />
+            </styleClass></Button>
+           <Button layoutX="88.0" onAction="#onEstablishConnectionClick" text="Connect to the Server">
+            <styleClass>
+               <String fx:value="bg-amber-200" />
+               <String fx:value="bg-rounded-4" />
+               <String fx:value="rounded-4" />
+               <String fx:value="text-sky-700" />
+            </styleClass></Button>
+         <Button layoutX="742.0" mnemonicParsing="false" onAction="#showOptionsMenu" text="Options">
+            <styleClass>
+               <String fx:value="rounded-4" />
+               <String fx:value="bg-rounded-4" />
+               <String fx:value="bg-amber-400" />
+               <String fx:value="text-sky-700" />
+               <String fx:value="cursor-hand" />
+            </styleClass></Button>
+         <Label fx:id="statusLabel" layoutX="232.0" layoutY="4.0" prefHeight="17.0" prefWidth="446.0" />
       </children>
    </Pane>
-    <Pane fx:id="effectPane" prefHeight="793.0" prefWidth="800.0">
+    <Pane fx:id="effectPane" prefHeight="802.0" prefWidth="800.0">
         <Pane fx:id="responsePane" prefHeight="500.0" />
     </Pane>
 </VBox>
