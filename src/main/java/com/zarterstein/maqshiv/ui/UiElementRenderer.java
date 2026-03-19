@@ -245,11 +245,13 @@ public class UiElementRenderer {
         String what = current.getDisplayText();
         root.applyCss();
         root.layout();
+        label.getStyleClass().add(current.getStyle().getDefaultHtmlClass());
+        label.getStyleClass().add(current.getStyle().getHtmlClass());
+        label.applyCss();
         if (what.contains(Client.STOP_PREFIX) || useTextTimeline) {
             renderTextWithTimeline(current, label.textProperty());
         } else {
             label.setText( what );
-            label.applyCss();
             uiHouse.redrawAll();
         }
 

@@ -11,6 +11,9 @@ public class Narration extends UiElement {
         String name = object.containsKey("narration")?object.getString("narration"):object.getString("text");
         setDisplayText(name);
         getStyle().applyFromJson(object, "");
+        if ( getStyle().getHtmlClass().isEmpty()) {
+            getStyle().setHtmlClass("magid-default-narration");
+        }
         if ( object.containsKey("defer") ) {
             try {
                 setDefer(Long.parseLong(object.getString("defer")));

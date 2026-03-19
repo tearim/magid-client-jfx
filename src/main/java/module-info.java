@@ -13,6 +13,7 @@ module com.example.magidclientjfx {
     requires javafx.graphics;
     requires jdk.jdi;
     requires java.prefs;
+    requires javafx.web;
 
     opens com.zarterstein.magidclientjfx to javafx.fxml;
     exports com.zarterstein.magidclientjfx;
