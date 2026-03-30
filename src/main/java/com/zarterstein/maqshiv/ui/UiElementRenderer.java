@@ -43,6 +43,7 @@ public class UiElementRenderer {
             ((Pane)root).getChildren().clear();
             root.getStyleClass().clear();
             root.getStyleClass().add(client.getResponsePaneDefaultStyle());
+            root.applyCss();
         }
         requestResetPane = false;
     }
@@ -273,6 +274,7 @@ public class UiElementRenderer {
         menuMessage.getStyleClass().add( firstClassName + "__text-area");
 
         ((Pane)root.getParent()).getStyleClass().clear();
+        ((Pane)root.getParent()).getStyleClass().add(client.getUnderRootDefaultStyle());
         ((Pane)root.getParent()).getStyleClass().add(firstClassName + "__outer-pane");
 
         menuMessage.applyCss();
