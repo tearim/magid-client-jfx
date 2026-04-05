@@ -36,6 +36,9 @@ public enum ResponseNodeType {
     }
 
     public static UiElement byLabel(String label) {
+        return byLabel(label, false);
+    }
+    public static UiElement byLabel(String label, boolean screamOnError) {
         Class<? extends UiElement> elemClass = ELEM_TYPE.get(label);
         if ( elemClass == null) {
             return null;
@@ -46,6 +49,9 @@ public enum ResponseNodeType {
             element.setClient(client);
             return element;
         } catch (Exception e) {
+            if ( screamOnError) {
+                throw new RuntimeException(e);
+            }
             return null;
         }
 
