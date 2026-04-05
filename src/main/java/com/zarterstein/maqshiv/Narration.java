@@ -18,6 +18,7 @@ public class Narration extends UiElement {
             try {
                 setDefer(Long.parseLong(object.getString("defer")));
             } catch ( NumberFormatException e ) {
+                // This means we ignore it
                 setDefer(0);
             }
         }
