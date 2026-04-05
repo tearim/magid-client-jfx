@@ -50,6 +50,7 @@ public enum ResponseNodeType {
             return element;
         } catch (Exception e) {
             if ( screamOnError) {
+                System.out.println( "Cannot create element of type: " + elemClass.getName());
                 throw new RuntimeException(e);
             }
             return null;
