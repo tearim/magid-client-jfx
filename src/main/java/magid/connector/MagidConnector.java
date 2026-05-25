@@ -102,10 +102,10 @@ public class MagidConnector {
     private String _getResponse() {
 
         StringBuilder response = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+        try (BufferedReader responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             String tempLine = "";
-            while ((tempLine = reader.readLine()) != null) {
+            while ((tempLine = responseReader.readLine()) != null) {
                 response.append(tempLine);
             }
         } catch (IOException exception) {

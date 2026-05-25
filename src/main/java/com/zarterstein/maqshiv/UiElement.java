@@ -2,6 +2,7 @@ package com.zarterstein.maqshiv;
 
 import com.zarterstein.maqshiv.advanced.FilterApplier;
 import com.zarterstein.maqshiv.ui.Style;
+import com.zarterstein.maqshiv.ui.UiElementRenderer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
@@ -10,7 +11,9 @@ import javafx.scene.layout.Region;
 
 import javax.json.JsonObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class UiElement {
     private Style style;
@@ -22,6 +25,7 @@ public abstract class UiElement {
     private Region region;
     private Control control;
     private long defer;
+    private UiElementRenderer renderer;
 
 
     public UiElement() {
@@ -33,6 +37,9 @@ public abstract class UiElement {
     public UiElement(UiElement parent) {
         this();
         this.parent = parent;
+        if ( parent != null ) {
+            renderer = parent.renderer;
+        }
     }
 
     public UiElement(UiElement parent, List<UiElement> children) {
@@ -117,6 +124,7 @@ public abstract class UiElement {
 
     public UiElement setClient(Client client) {
         this.client = client;
+        this.renderer = client.getRenderer();
         return this;
     }
 
@@ -171,6 +179,8 @@ public abstract class UiElement {
         placeOnRegion();
         processFilters();
     }
+
+
     public void placeOnRegion() {
         if ( region == null || style == null || client == null || control == null) return;
 
@@ -192,9 +202,9 @@ public abstract class UiElement {
                 finalX = 100 - finalX;
             } else {
                 final double realX = finalX;
-                scene.widthProperty().addListener((c,o,n)->{
-                    control.relocate(region.widthProperty().get() - realX, control.getLayoutY() );
-                } );
+                ChangeListener<Number> listener = (c, o, n) -> control.relocate(region.widthProperty().get() - realX, control.getLayoutY() );
+                scene.widthProperty().addListener(listener);
+                renderer.registerListener(scene.widthProperty(), listener);
                 finalX = region.widthProperty().get() - finalX;
             }
         }
@@ -216,9 +226,11 @@ public abstract class UiElement {
                 finalY = 100 -  finalY;
             } else {
                 final double realY = finalY;
-                region.heightProperty().addListener((c,o,n)->{
-                    control.relocate(control.getLayoutX(), region.heightProperty().get() - realY);
-                } );
+                ChangeListener<Number> listener = (c, o, n) ->
+                        control.relocate(control.getLayoutX(), region.heightProperty().get() - realY);
+
+                region.heightProperty().addListener( listener );
+                renderer.registerListener(region.heightProperty(), listener);
                 finalY = region.heightProperty().get() - finalY;
             }
         }
@@ -226,15 +238,17 @@ public abstract class UiElement {
         if ( getStyle().isCssPropertyInPercentage(selectorXUsed)) {
             double percentageX = finalX;
             // for resizing
-            scene.widthProperty().addListener((c,o,n)->{
-                control.relocate((Double)n * (percentageX / 100), control.getLayoutY());
-            } );
+            ChangeListener<Number> listener = (c, o, n) -> control.relocate((Double)n * (percentageX / 100), control.getLayoutY());
+            scene.widthProperty().addListener(listener );
+            renderer.registerListener(scene.widthProperty(), listener);
             // for initial placement
             finalX = scene.getWidth() * percentageX / 100;
         }
         if ( getStyle().isCssPropertyInPercentage(selectorYUsed)) {
             double percentageY = finalY;
-            scene.heightProperty().addListener((c,o,n)->control.relocate(control.getLayoutX(), (Double)n * (percentageY / 100) ));
+            ChangeListener<Number> listener = (c, o, n) -> control.relocate(control.getLayoutX(), (Double)n * (percentageY / 100) );
+            scene.heightProperty().addListener(listener);
+            renderer.registerListener(scene.heightProperty(), listener);
             finalY = scene.getHeight() * percentageY / 100;
         }
         control.relocate(finalX, finalY);

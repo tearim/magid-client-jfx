@@ -41,6 +41,7 @@ public class Style {
     public void applyFromJson(JsonObject jObj, String prefix) {
         setCssDeclarations();
         css = cssToFxCss( JsonUtils.getStringIfSet(jObj, prefix + "css"));
+        // Have to call it again to accommodate additions after cssToFxCss.
         setCssDeclarations();
         htmlClass =  JsonUtils.getStringIfSet(jObj, prefix + "class");
         imageLink =  JsonUtils.getStringIfSet(jObj, prefix + "image");

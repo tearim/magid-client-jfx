@@ -6,6 +6,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
@@ -18,7 +20,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UiElementRenderer {
     private final Region root;
@@ -27,9 +31,9 @@ public class UiElementRenderer {
     private final Client client;
     private UiElement uiElementRoot;
     private final MultiStoreUiRelocator uiHouse = new MultiStoreUiRelocator();
-    private boolean ingoreTexttimelines = false;
-    private boolean ingoreTimelines = false;
-    private boolean ingoreViewPortMaximization = false;
+    private boolean ignoreTexttimelines = false;
+    private boolean ignoreTimelines = false;
+    private boolean ignoreViewPortMaximization = false;
 
     boolean useTextTimeline = false;
     int timeOffset = 0;
@@ -49,7 +53,7 @@ public class UiElementRenderer {
     }
     private boolean requestResetPane;
     public void redraw(UiElement rootElement) {
-        // to be called when the client gets a new response
+        removeListenersOnRedraw();
         currentFrame++;
         if ( uiElementRoot != null) {
             uiElementRoot.getChildren().clear();
@@ -154,7 +158,7 @@ public class UiElementRenderer {
             new Thread( () -> {
                 final long blockedMillisLong = blockedMillis.stream().mapToLong(Long::longValue).sum() + defer;
                 try {
-                    if ( ingoreTimelines) {
+                    if (ignoreTimelines) {
                         Thread.sleep(1 );
                     }else  {
                         Thread.sleep(blockedMillisLong);
@@ -192,7 +196,7 @@ public class UiElementRenderer {
                 String[] split = part.split("@", 2);
                 //if (!DEBUG_NARRATION)
                 try {
-                    if  (ingoreTexttimelines) {
+                    if  (ignoreTexttimelines) {
                         millis = 1;
                     } else {
                         millis = Integer.parseInt(split[0]);
@@ -261,6 +265,9 @@ public class UiElementRenderer {
     private void renderMenu(UiElement current) {
         TextArea menuMessage = new TextArea();
         renderMenuText(current, menuMessage,  current.getDisplayText());
+        if ( root == null) {
+            throw  new RuntimeException("Root Element for menu not found");
+        }
         ((Pane)root).getChildren().add(menuMessage);
         setMenuProperties(menuMessage, current);
         menuMessage.relocate(uiHouse.getXOffset(),  uiHouse.currentY());
@@ -342,7 +349,7 @@ public class UiElementRenderer {
                 root.setPrefHeight(element.getStyle().getCssPropertyDouble("-mg-window-height"));
             }
             if ( !client.isVar("view-port", "maximized") && element.getStyle().isCssPropertyPresent("-mg-window-resizable")) {
-                boolean resizable = Boolean.getBoolean(element.getStyle().getCssProperty("-mg-widnow-resizable"));
+                boolean resizable = Boolean.getBoolean(element.getStyle().getCssProperty("-mg-window-resizable"));
                 ((Stage)menuMessage.getScene().getWindow()).setResizable(resizable);
             }
         }
@@ -372,18 +379,18 @@ public class UiElementRenderer {
 
     }
 
-    public void setIngoreTimelines(boolean really) {
-        ingoreTimelines =  really;
+    public void setIgnoreTimelines(boolean really) {
+        ignoreTimelines =  really;
     }
-    public void setIngoreTexttimelines(boolean really) {
-        ingoreTexttimelines = really;
+    public void setIgnoreTexttimelines(boolean really) {
+        ignoreTexttimelines = really;
     }
 
     public void setIgnoreMaximization(boolean really) {
-        ingoreViewPortMaximization = really;
+        ignoreViewPortMaximization = really;
     }
     public boolean getIgnoreMaximization() {
-        return ingoreViewPortMaximization;
+        return ignoreViewPortMaximization;
     }
 
     public UiElementRenderer(Region root, Scene scene, Client client) {
@@ -391,6 +398,23 @@ public class UiElementRenderer {
         this.scene = scene;
         this.client = client;
         underRoot = (Pane)root.getParent();
+    }
+
+
+    private Map<ObservableValue<?>, List<ChangeListener<?>>> listeners = new HashMap<>();
+    public void registerListener(ObservableValue<?> value, ChangeListener<?> listener ) {
+        if ( !listeners.containsKey(value) ) {
+            listeners.put(value, new ArrayList<>());
+        }
+        listeners.get(value).add(listener);
+    }
+
+    public void removeListenersOnRedraw() {
+        for ( ObservableValue<?> value : listeners.keySet() ) {
+            for ( ChangeListener<?> listener : listeners.get(value) ) {
+                value.removeListener((ChangeListener)listener);
+            }
+        }
     }
 
 }

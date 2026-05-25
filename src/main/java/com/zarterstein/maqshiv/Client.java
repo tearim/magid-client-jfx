@@ -98,7 +98,7 @@ public class Client {
     }
 
     public UiElement parse() {
-        String additionalResponse = "";
+        String errorLine = "";
         root = null;
         if ( logCommunications) {
             System.out.println(storyToParse);
@@ -108,9 +108,9 @@ public class Client {
                 root = addElementsToRootFromJson(root, json.readObject(), this);
             }
         } catch (Exception e ) {
-            additionalResponse = "Unfortunately, the server spoke something, parser couldn't parse: " + storyToParse +". \n Or just Json parser was not happpy: " + e.getMessage() + ". " ;
+            errorLine = "Unfortunately, the server spoke something, parser couldn't parse: " + storyToParse +". \n Or just Json parser was not happpy: " + e.getMessage() + ". " ;
             e.printStackTrace();
-            System.out.println(additionalResponse);
+            System.out.println(errorLine);
         }
         if ( wasCssAdded) {
             if ( root!=null) {
@@ -120,6 +120,7 @@ public class Client {
         }
         return root;
     }
+
 
     public static UiElement addElementsToRootFromJson(UiElement currentRoot, JsonArray jArr, Client client) {
         for ( JsonObject object : jArr.getValuesAs(JsonObject.class)) {

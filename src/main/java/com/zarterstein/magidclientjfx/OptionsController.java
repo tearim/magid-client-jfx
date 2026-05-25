@@ -113,12 +113,12 @@ public class OptionsController {
         ignoreTimelines.setSelected(PrefHelper.getBoolean("narration.ignoretimelines"));
         ignoreTimelines.selectedProperty().addListener((ov, oldValue, newValue) -> {
             currentSettings.put("narration.ignoretimelines", newValue);
-            client.getRenderer().setIngoreTimelines(newValue);
+            client.getRenderer().setIgnoreTimelines(newValue);
         });
         ignoreTextTimelines.setSelected(PrefHelper.getBoolean("narration.ignoretexttimelines"));
         ignoreTextTimelines.selectedProperty().addListener((ov, oldValue, newValue) -> {
             currentSettings.put("narration.ignoretexttimelines", newValue);
-            client.getRenderer().setIngoreTexttimelines(newValue);
+            client.getRenderer().setIgnoreTexttimelines(newValue);
         });
         ignoreViewPortMaximization.setSelected(PrefHelper.getBoolean("viewport.ignoremaximization"));
         ignoreViewPortMaximization.selectedProperty().addListener((ov, oldValue, newValue) -> {
@@ -139,32 +139,52 @@ public class OptionsController {
 
     public static String getCurrentSetting(String name) {
         if ( currentSettings.containsKey(name) ) {
-            return (String) currentSettings.get(name);
+            try {
+                return (String) currentSettings.get(name);
+            }  catch (ClassCastException e) {
+                return "";
+            }
         }
         return "";
     }
 
     public static float getCurrentSettingAsFloat(String name) {
         if ( currentSettings.containsKey(name) ) {
-            return (float) currentSettings.get(name);
+            try {
+                return Float.parseFloat(currentSettings.get(name).toString());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
         return 0;
     }
     public static int getCurrentSettingAsInt(String name) {
         if ( currentSettings.containsKey(name) ) {
-            return (int) currentSettings.get(name);
+            try {
+                return Integer.parseInt(currentSettings.get(name).toString());
+            }  catch (NumberFormatException e) {
+                return 0;
+            }
         }
         return 0;
     }
     public static boolean getCurrentSettingAsBoolean(String name) {
         if ( currentSettings.containsKey(name) ) {
-            return (boolean) currentSettings.get(name);
+            try {
+                return Boolean.parseBoolean(currentSettings.get(name).toString());
+            } catch (Exception e) {
+                return false;
+            }
         }
         return false;
     }
     public static double getCurrentSettingAsDouble(String name) {
         if ( currentSettings.containsKey(name) ) {
-            return (double) currentSettings.get(name);
+            try {
+                return Double.parseDouble(currentSettings.get(name).toString());
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
         return 0;
     }

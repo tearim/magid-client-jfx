@@ -3,6 +3,8 @@ package com.zarterstein.magidclientjfx;
 import com.zarterstein.maqshiv.Client;
 import com.zarterstein.maqshiv.utils.JsonUtils;
 import com.zarterstein.prefs.PrefHelper;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import magid.connector.MagidConnector;
 
 import javax.json.JsonObject;
@@ -140,76 +143,73 @@ public class MagidMainController {
         System.out.println("Connecting to Magid server @"+baseUrl4Magid);
         connector = new MagidConnector(baseUrl4Magid);
         client = new Client(connector, responsePane);
-        client.getRenderer().setIngoreTexttimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretexttimelines"));
-        client.getRenderer().setIngoreTimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretimelines"));
+        client.getRenderer().setIgnoreTexttimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretexttimelines"));
+        client.getRenderer().setIgnoreTimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretimelines"));
         client.getRenderer().setIgnoreMaximization(OptionsController.getCurrentSettingAsBoolean("viewport.ignoremaximization"));
         client.enableLogging();
         client.beginStory("");
     }
 
 
+    Timeline messageTimeline = new Timeline();
     private int messageNo = 0;
+    private Thread messageThread;
     public void showMessage (String message ) {
         showMessage(message, DEFAULT_MESSAGE_SHOW_TIME);
     }
     public void showMessage (String message, int forHowLong ) {
         int currMessageNo  = ++messageNo;
+        if ( messageThread != null ) {
+            if ( messageThread.isAlive() ) {
+                messageTimeline.stop();
+                messageThread.interrupt();
+            }
+        }
         makeMessageAppear(message, 0, currMessageNo );
-        new Thread( () -> {
+        messageThread = new Thread( () -> {
             try {
                 Thread.sleep(forHowLong);
-                Platform.runLater(() -> dissapearingMessage(message + " ", currMessageNo ));
+                Platform.runLater(() -> disappearingMessage(message + " ", currMessageNo ));
             }  catch (InterruptedException e ) {
-                System.out.println(e.getMessage());
+                //System.out.println(e.getMessage());
                 Thread.currentThread().interrupt();
             }
-        }).start();
+        });
+        messageThread.start();
     }
     private void makeMessageAppear(String message, int chars, int currMessageNo ) {
-        if ( currMessageNo < messageNo ) {
-            return;
-        }
-        new Thread( () -> {
-            try {
-                Thread.sleep(5);
-                Platform.runLater(() -> {
-                    String current = message.substring(0, chars);
-                    statusLabel.setText(current);
-                    if ( chars < message.length()  ) {
-                        makeMessageAppear(message, chars + 1,  currMessageNo);
+        messageTimeline = new Timeline();
+        for (  int i = 0; i <= message.length(); i++ ) {
+            final int _i = i;
+            messageTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.millis(10 * i),
+                    event -> {
+                        String current = message.substring(0, _i);
+                        statusLabel.setText(current);
                     }
-                });
-            }  catch (InterruptedException e ) {
-                System.out.println(e.getMessage());
-                Thread.currentThread().interrupt();
-            }
-        }).start();
+            ));
+        }
+        messageTimeline.playFromStart();
     }
 
-    private void dissapearingMessage(String message, int currMessageNo) {
+
+    private void disappearingMessage(String message, int currMessageNo) {
         if ( currMessageNo < messageNo ) {
             return;
         }
-        new Thread( () -> {
-            try {
-                Thread.sleep(25);
-                String messageToShow = message.substring(0, Math.max(0, message.length() - 1));
-                if ( messageToShow.isEmpty() ) {
-                    Platform.runLater(() -> {
-                        statusLabel.setText("");
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        dissapearingMessage(messageToShow,  currMessageNo);
-                        statusLabel.setText(messageToShow);
-                    });
+        messageTimeline = new Timeline();
+        for (  int i = message.length(); i >= 0; i-- ) {
+            final int _i = message.length() - i;
+            messageTimeline.getKeyFrames().add(new KeyFrame(
+                    Duration.millis(15 * i),
+                    event -> {
+                        String current = message.substring(0, _i);
+                        statusLabel.setText(current);
+                    }
+            ));
+        }
+        messageTimeline.playFromStart();
 
-                }
-            }  catch (InterruptedException e ) {
-                System.out.println(e.getMessage());
-                Thread.currentThread().interrupt();
-            }
-        }).start();
     }
 
     public String getServerWorkingXmlPath() {

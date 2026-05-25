@@ -56,7 +56,10 @@ public class ClientVar {
     private static final int FOR_X = 0;
     private static final int FOR_Y = 1;
     private static final int FOR_BOTH = 2;
+
     private static void processMenuPosition(String varName, String varValue) {
+        // TODO: rewrite or remove.
+        // Meanwhile, saving code prototype for a later date.
         if ( true ) return ;
         if ( varValue == null || varValue.isEmpty()) return;
         int for_what = UNDECIDED;
@@ -65,7 +68,7 @@ public class ClientVar {
             posX = varValue.split(";")[0];
             posY = varValue.split(";")[1];
         } else {
-            posX = posX = varValue;
+            posX = posY = varValue;
             for_what = FOR_BOTH;
         }
         Pane innerPane = client.getResponsePane();
