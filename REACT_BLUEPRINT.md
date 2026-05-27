@@ -7,7 +7,7 @@ a React web client for the **Magid** interactive-fiction engine.
 
 ## What is Magid?
 
-Magid is a server-side text-adventure / interactive-fiction engine (`com.zarterstein` project).
+Magid is a server-side text-adventure / interactive-fiction engine (`com.zarterstein` project with an idea to enter enterprise at some point: onboarding, scenario-training etc.).
 It exposes an HTTP API that returns JSON describing scenes. A client renders those scenes:
 story text, choice buttons, visual transitions, background music, and dynamic CSS theming.
 
@@ -88,18 +88,18 @@ The server sends a **single JSON object** per response. Keys determine element t
 - `view-port: maximized` → maximise the browser window / go fullscreen
 - `menu-position: center` → centre the game panel (not yet implemented in JFX reference either)
 
-### `visual` — Fade/unfade transition
+### `visual` — Fade/unfade transition (There will be more transitions; this must be modular.)
 
 ```json
 {
-  "visual": "",
+  "visual": "transition",
   "transition-type": "fade",
   "transition-length": "800",
   "transition-target": "#000000",
   "transition-blocking": "true"
 }
 ```
-
+`visual`: Currently, of visual there are only "transitions", but later more types of visual effects/filters/etc might be added.
 `transition-type`: `"fade"` (opacity 1→0) or `"unfade"` (opacity 0→1).
 `transition-blocking: "true"` means subsequent elements must wait until this transition ends.
 
@@ -303,6 +303,8 @@ Logic: iterate the keys of the JSON object; map known keys to element types usin
 
 For `responses`, recursively call `parseResponse` on each item in the array.
 Apply `resolveAnchors` to all string values during parsing.
+
+Make it future-proof: your implementation should be easily extendable with new element types in the future. Use one source of truth for the allowed/active types. (Keep that in mind when going through step 7.6) 
 
 **Step 3.2** — Write unit tests for `parseResponse` (Jest or Vitest).
 Cover: single menu, single narration, responses container, config with css-files,
