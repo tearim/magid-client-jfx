@@ -15,6 +15,7 @@ module com.example.magidclientjfx {
     requires java.prefs;
     requires javafx.web;
     requires javafx.base;
+    requires java.logging;
 
     opens com.zarterstein.magidclientjfx to javafx.fxml;
     exports com.zarterstein.magidclientjfx;

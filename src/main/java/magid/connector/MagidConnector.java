@@ -73,7 +73,7 @@ public class MagidConnector {
                 alert.setContentText(e.getMessage() + "\n\n" + "Please double check your URL.");
                 alert.showAndWait();
             }
-            throw new RuntimeException("There was a mistake with URL: " + e.getMessage());
+               throw new RuntimeException("There was a mistake with URL: " + e.getMessage());
         }
         catch (IOException e) {
             if ( !silentConnectionErrors ) {
@@ -89,6 +89,11 @@ public class MagidConnector {
 
     public String getResponse() {
         return getResponse("");
+    }
+
+    public String connect(MagidRequest request) {
+        _connect(request.getFullRequestString());
+        return _getResponse();
     }
 
     public String getResponse(String command, Map<String, String> moreParams) {
