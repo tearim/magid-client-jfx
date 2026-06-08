@@ -1,10 +1,11 @@
 package com.zarterstein.maqshiv;
 
+import com.zarterstein.maqshiv.utils.JsonUtils;
+
 import javax.json.JsonObject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class Config extends UiElement {
     public Config() {
@@ -31,10 +32,11 @@ public class Config extends UiElement {
             return null;
         }
         JsonObject config = object.getJsonObject("config");
+        getClient().getConnector().setFreshnessKey(JsonUtils.getStringIfSet(config, "freshness-key"));
+        processCssFiles(JsonUtils.getStringIfSet(config, "css-files"));
+        List<String> notVarnames = List.of("css-files", "freshness-key");
         for ( String name : config.keySet()) {
-            if ( name.equals("css-files")) {
-                processCssFiles(config.getString(name));
-            } else {
+            if ( !notVarnames.contains(name)) {
                 getClient().setVar(name, config.getString(name));
             }
         }

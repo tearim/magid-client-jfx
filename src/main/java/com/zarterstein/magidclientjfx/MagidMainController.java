@@ -141,7 +141,9 @@ public class MagidMainController {
         baseUrl4Magid = getServerUrl();
 
         System.out.println("Connecting to Magid server @"+baseUrl4Magid);
-        connector = new MagidConnector(baseUrl4Magid);
+        if ( connector == null ) {
+            connector = new MagidConnector(baseUrl4Magid);
+        }
         client = new Client(connector, responsePane);
         client.getRenderer().setIgnoreTexttimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretexttimelines"));
         client.getRenderer().setIgnoreTimelines(OptionsController.getCurrentSettingAsBoolean("narration.ignoretimelines"));

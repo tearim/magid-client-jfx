@@ -23,6 +23,7 @@ public class MagidConnector {
     URL url;
     String baseURL;
     String request;
+    String freshnessKey;
     URLConnection connection;
     public static String MAGID_ANCHOR = "magid://";
 
@@ -46,7 +47,7 @@ public class MagidConnector {
         this.silentConnectionErrors = silentConnectionErrors;
     }
     private void connect(String request, Map<String, String> moreParams) {
-        StringBuilder url = new StringBuilder(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8));
+        StringBuilder url = new StringBuilder(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8) + "&freshnessKey=" + freshnessKey);
         for ( Map.Entry<String, String> entry : moreParams.entrySet()) {
             url.append("&").append(entry.getKey()).append("=").append(
                  URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8)
@@ -56,11 +57,11 @@ public class MagidConnector {
 
     }
     private void connect(String request) {
-        _connect(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8));
+        _connect(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8) + "&freshnessKey=" + freshnessKey);
     }
     private void _connect(String urlString) {
         try {
-
+            System.out.println("URL String to pass: " + urlString);
             url = new URL(urlString);
             connection = url.openConnection();
             connection.connect();
@@ -134,6 +135,11 @@ public class MagidConnector {
         JsonArray jsonArray = json.readArray();
         json.close();
         return jsonArray;
+    }
+
+    public void setFreshnessKey(String freshnessKey) {
+        System.out.println("Freshness key ("+this.freshnessKey+") changed to " + freshnessKey);
+        this.freshnessKey = freshnessKey;
     }
 
 

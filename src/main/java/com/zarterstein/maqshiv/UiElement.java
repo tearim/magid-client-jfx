@@ -3,6 +3,7 @@ package com.zarterstein.maqshiv;
 import com.zarterstein.maqshiv.advanced.FilterApplier;
 import com.zarterstein.maqshiv.ui.Style;
 import com.zarterstein.maqshiv.ui.UiElementRenderer;
+import com.zarterstein.maqshiv.utils.JsonUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
@@ -11,9 +12,7 @@ import javafx.scene.layout.Region;
 
 import javax.json.JsonObject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class UiElement {
     private Style style;
@@ -114,10 +113,7 @@ public abstract class UiElement {
      * @return
      */
     public static String getStringIfSet(JsonObject jObj, String key) {
-        if ( jObj.containsKey(key)) {
-            return jObj.getString(key);
-        }
-        return "";
+        return JsonUtils.getStringIfSet(jObj, key);
     }
 
     public abstract UiElement createFromJson(JsonObject jObj);

@@ -197,4 +197,8 @@ public class Client {
     public UiElementRenderer getRenderer() {
         return renderer;
     }
+
+    public MagidConnector getConnector() {
+        return connector;
+    }
 }
