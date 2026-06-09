@@ -23,7 +23,8 @@ public class MagidConnector {
     URL url;
     String baseURL;
     String request;
-    String freshnessKey;
+    String freshnessKey = "";
+    String currentMenuName = "";
     URLConnection connection;
     public static String MAGID_ANCHOR = "magid://";
 
@@ -46,8 +47,12 @@ public class MagidConnector {
     public void setSilentConnectionErrors(boolean silentConnectionErrors) {
         this.silentConnectionErrors = silentConnectionErrors;
     }
-    private void connect(String request, Map<String, String> moreParams) {
-        StringBuilder url = new StringBuilder(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8) + "&freshnessKey=" + freshnessKey);
+
+    private String formBasicGetString(String command) {
+        return baseURL + "?cmd=" + URLEncoder.encode(command, StandardCharsets.UTF_8) + "&freshness-key=" + freshnessKey  + "&current-scene=" + URLEncoder.encode(currentMenuName, StandardCharsets.UTF_8);
+    }
+    private void connect(String command, Map<String, String> moreParams) {
+        StringBuilder url = new StringBuilder(formBasicGetString(command));
         for ( Map.Entry<String, String> entry : moreParams.entrySet()) {
             url.append("&").append(entry.getKey()).append("=").append(
                  URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8)
@@ -56,8 +61,8 @@ public class MagidConnector {
         _connect(url.toString());
 
     }
-    private void connect(String request) {
-        _connect(baseURL + "?cmd=" + URLEncoder.encode(request, StandardCharsets.UTF_8) + "&freshnessKey=" + freshnessKey);
+    private void connect(String command) {
+        _connect(formBasicGetString(command));
     }
     private void _connect(String urlString) {
         try {
@@ -142,5 +147,21 @@ public class MagidConnector {
         this.freshnessKey = freshnessKey;
     }
 
+    public String getFreshnessKey() {
+        return freshnessKey;
+    }
+
+    public void setCurrentMenuName(String currentMenuName) {
+        this.currentMenuName = currentMenuName;
+    }
+
+    public String getCurrentMenuName() {
+        return currentMenuName;
+    }
+
+    public void resetFreshnessKeyAndMenuName() {
+        this.freshnessKey = "";
+        this.currentMenuName = "";
+    }
 
 }

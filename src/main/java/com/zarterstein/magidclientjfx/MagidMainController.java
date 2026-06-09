@@ -58,6 +58,7 @@ public class MagidMainController {
             //System.out.println(rawResponse);
 
             if ( JsonUtils.getStringIfSet(rawResponse, "status").equals("The server was reloaded.") ) {
+                connector.resetFreshnessKeyAndMenuName();
                 showMessage("The server has been reloaded");
             }
         }

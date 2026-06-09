@@ -14,6 +14,7 @@ public class Menu extends UiElement {
 
         getStyle().applyFromJson(jObj, "menu-");
         setName(getStringIfSet(jObj, "menu-name"));
+        getClient().getConnector().setCurrentMenuName(getName());
         setDisplayText(getStringIfSet(jObj, "menu-description"));
         if (jObj.containsKey("menu-options")) {
             JsonArray array = jObj.getJsonArray("menu-options");
