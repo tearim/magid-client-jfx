@@ -25,6 +25,8 @@ public class Client {
     private Pane responsePane;
     private String responsePaneDefaultClassName;
     private String underRootDefaultClassName;
+    private boolean onRetry = false;
+    private String retryCommand = "";
 
     private boolean logCommunications = false;
     private Scene scene;
@@ -90,6 +92,7 @@ public class Client {
 
     public void proceedWith(String command) {
         storyToParse = connector.getResponse(command);
+        retryCommand = command;
         renderer.redraw(parse());
     }
 
@@ -105,7 +108,23 @@ public class Client {
         }
         try {
             try (JsonReader json = Json.createReader(new StringReader(storyToParse))) {
-                root = addElementsToRootFromJson(root, json.readObject(), this);
+                JsonObject jsonResult = json.readObject();
+                if ( jsonResult.containsKey("status") && jsonResult.getString("status").equals("error")) {
+                    if ( jsonResult.containsKey("message")) {
+                        errorLine = jsonResult.getString("message");
+                        System.out.println(errorLine);
+                    }
+                    if ( jsonResult.containsKey("freshness-key")) {
+                        connector.setFreshnessKey(jsonResult.getString("freshness-key"));
+                        if ( !onRetry ) {
+                            onRetry = true;
+                            proceedWith(retryCommand);
+                        }
+                    }
+                } else {
+                    onRetry = false;
+                    root = addElementsToRootFromJson(root, jsonResult, this);
+                }
             }
         } catch (Exception e ) {
             errorLine = "Unfortunately, the server spoke something, parser couldn't parse: " + storyToParse +". \n Or just Json parser was not happpy: " + e.getMessage() + ". " ;
