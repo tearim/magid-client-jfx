@@ -4,9 +4,7 @@ import javafx.scene.control.Alert;
 
 import javax.json.Json;
 import javax.json.JsonArray;
-import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.json.stream.JsonParser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,7 +14,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 
 public class MagidConnector {
@@ -49,7 +46,7 @@ public class MagidConnector {
     }
 
     private String formBasicGetString(String command) {
-        return baseURL + "?cmd=" + URLEncoder.encode(command, StandardCharsets.UTF_8) + "&freshness-key=" + freshnessKey  + "&current-scene=" + URLEncoder.encode(currentMenuName, StandardCharsets.UTF_8);
+        return baseURL + "?cmd=" + URLEncoder.encode(command, StandardCharsets.UTF_8) + "&freshness-key=" + freshnessKey  + "&current-scene=" + URLEncoder.encode(currentMenuName, StandardCharsets.UTF_8 ) + "&client-type=javafx";
     }
     private void connect(String command, Map<String, String> moreParams) {
         StringBuilder url = new StringBuilder(formBasicGetString(command));
