@@ -33,7 +33,11 @@ public class Config extends UiElement {
         }
         JsonObject config = object.getJsonObject("config");
         getClient().getConnector().setFreshnessKey(JsonUtils.getStringIfSet(config, "freshness-key"));
-        processCssFiles(JsonUtils.getStringIfSet(config, "css-files"));
+        if ( config.containsKey("css-files-javafx")) {
+            processCssFiles(JsonUtils.getStringIfSet(config, "css-files-javafx"));
+        } else {
+            processCssFiles(JsonUtils.getStringIfSet(config, "css-files"));
+        }
         List<String> notVarnames = List.of("css-files", "freshness-key");
         for ( String name : config.keySet()) {
             if ( !notVarnames.contains(name)) {

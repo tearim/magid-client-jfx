@@ -201,6 +201,8 @@ public class Client {
 
 
     public String readResourceFileAsString(String fileName) {
+        if ( fileName == null || fileName.isEmpty())
+            return "";
         try (InputStream is = PathToInputStream.get(fileName)) {
             if (is == null) {
                 throw new IllegalArgumentException("Resource not found: " + fileName);
