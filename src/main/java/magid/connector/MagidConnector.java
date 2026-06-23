@@ -9,10 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -22,8 +19,21 @@ public class MagidConnector {
     String request;
     String freshnessKey = "";
     String currentMenuName = "";
+    String sessionId = "";
+    String fileRequestToken = "";
     URLConnection connection;
     public static String MAGID_ANCHOR = "magid://";
+
+    public void setSessionId(String clientId) {
+        this.sessionId = clientId;
+    }
+
+    public void setFileRequestToken(String fiReTo) {
+        fileRequestToken = fiReTo;
+    }
+    public String getFileRequestToken() {
+        return fileRequestToken;
+    }
 
     public MagidConnector(String baseURL) {
         this.baseURL = baseURL;
@@ -63,9 +73,12 @@ public class MagidConnector {
     }
     private void _connect(String urlString) {
         try {
-            System.out.println("URL String to pass: " + urlString);
             url = new URL(urlString);
             connection = url.openConnection();
+            if ( !sessionId.isEmpty() ) {
+                connection.setRequestProperty("authorization", "Bearer " + sessionId);
+
+            }
             connection.connect();
         }
         catch (MalformedURLException e) {

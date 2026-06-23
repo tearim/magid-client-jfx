@@ -22,7 +22,8 @@ public class Config extends UiElement {
             names.add(fileNames);
         }
         for ( String name : names ) {
-            getClient().addCssFile(name);
+            getClient().addCssFile(name + "?cmd=resolve-magid-protocol&file-request-token=" + getClient().getConnector().getFileRequestToken() );
+
         }
     }
 

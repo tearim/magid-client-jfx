@@ -110,16 +110,28 @@ public class Client {
             try (JsonReader json = Json.createReader(new StringReader(storyToParse))) {
                 JsonObject jsonResult = json.readObject();
                 if ( jsonResult.containsKey("status") && jsonResult.getString("status").equals("error")) {
-                    if ( jsonResult.containsKey("message")) {
+                    if ( jsonResult.containsKey("code") && jsonResult.getString("code").equals(MagidServerErrorCodes.SESSION_NOT_FOUND)) {
+                        connector.setSessionId("");
+                        connector.setFileRequestToken("");
+                    }
+                }
+                if ( jsonResult.containsKey("session-id")) {
+                    connector.setSessionId( jsonResult.getString("session-id"));
+                    connector.setFileRequestToken( jsonResult.getString("file-request-token"));
+                    proceedWith("");
+                    return null;
+                }
+                if ( jsonResult.containsKey("status") && jsonResult.getString("status").equals("error")) {
+                    if (jsonResult.containsKey("message")) {
                         errorLine = jsonResult.getString("message");
                         System.out.println(errorLine);
                     }
-                    if ( jsonResult.containsKey("freshness-key")) {
-                        connector.setFreshnessKey(jsonResult.getString("freshness-key"));
-                        if ( !onRetry ) {
-                            onRetry = true;
-                            proceedWith(retryCommand);
-                        }
+                }
+                if ( jsonResult.containsKey("freshness-key")) {
+                    connector.setFreshnessKey(jsonResult.getString("freshness-key"));
+                    if ( !onRetry ) {
+                        onRetry = true;
+                        proceedWith(retryCommand);
                     }
                 } else {
                     onRetry = false;
@@ -184,9 +196,11 @@ public class Client {
 
     private boolean wasCssAdded = false;
     public void addCssFile(String fileName) {
-        scene.getStylesheets().add(fileName + "?cmd=resolveMagidProtocol");
-        cssFileSources.put(fileName, readResourceFileAsString(fileName+ "?cmd=resolveMagidProtocol") );
-        wasCssAdded = true;
+        if ( !cssFileSources.containsKey(fileName)) {
+            scene.getStylesheets().add(fileName);
+            cssFileSources.put(fileName, readResourceFileAsString(fileName));
+            wasCssAdded = true;
+        }
     }
 
     public void clearCssFiles()  {
