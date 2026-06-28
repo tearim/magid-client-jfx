@@ -122,16 +122,16 @@ public class Client {
                     return null;
                 }
                 if ( jsonResult.containsKey("status") && jsonResult.getString("status").equals("error")) {
-                    if (jsonResult.containsKey("message")) {
+                    if ( jsonResult.containsKey("message")) {
                         errorLine = jsonResult.getString("message");
                         System.out.println(errorLine);
                     }
-                }
-                if ( jsonResult.containsKey("freshness-key")) {
-                    connector.setFreshnessKey(jsonResult.getString("freshness-key"));
-                    if ( !onRetry ) {
-                        onRetry = true;
-                        proceedWith(retryCommand);
+                    if ( jsonResult.containsKey("freshness-key")) {
+                        connector.setFreshnessKey(jsonResult.getString("freshness-key"));
+                        if ( !onRetry ) {
+                            onRetry = true;
+                            proceedWith(retryCommand);
+                        }
                     }
                 } else {
                     onRetry = false;
