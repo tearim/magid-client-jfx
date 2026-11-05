@@ -9,11 +9,18 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
+import javafx.beans.binding.Bindings;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
@@ -23,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class UiElementRenderer {
     private final Region root;
@@ -90,6 +98,10 @@ public class UiElementRenderer {
             if ( element instanceof Narration) {
                 resetPane();
                 renderHelper(() -> renderNarration(element), element.getDefer());
+            }
+            if ( element instanceof ImageElement) {
+                resetPane();
+                renderHelper(() -> renderImage((ImageElement) element), element.getDefer());
             }
             if ( element instanceof VisualTransition) {
                 if ( !((VisualTransition) element).isDeferringRedraw() ) {
@@ -185,9 +197,12 @@ public class UiElementRenderer {
     }
 
 
-    private void renderTextWithTimeline(UiElement current, StringProperty textHolder) {
+    private Timeline renderTextWithTimeline(UiElement current, StringProperty textHolder) {
+        return renderTextWithTimeline(current, current.getDisplayText(), textHolder);
+    }
+
+    private Timeline renderTextWithTimeline(UiElement current, String what, StringProperty textHolder) {
         useTextTimeline = true;
-        String what = current.getDisplayText();
         String[] parts = what.split(Client.STOP_PREFIX);
         Timeline textTimeline = new Timeline();
         for ( String part : parts )  {
@@ -235,10 +250,74 @@ public class UiElementRenderer {
         }
 
         textTimeline.playFromStart();
+        return textTimeline;
+    }
+
+    // Text with the detached elements placed at their anchors, shown by `holder`, which keeps the element's classes
+    // and css (so the story's CSS still applies) and lends its font and colour to the text.
+    private AnchoredText anchoredText(UiElement current, Labeled holder, List<DetachedElement> anchored) {
+        AnchoredText text = new AnchoredText(current.getDisplayText(), anchored, el -> DetachedNodes.create(el, client));
+        text.followTextStyleOf(holder);
+        holder.setGraphic(text.getFlow());
+        holder.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        holder.setAlignment(Pos.TOP_LEFT);
+        // Wrap within the holder's width when the story's CSS sets one (a narration Label doesn't wrap otherwise).
+        text.getFlow().maxWidthProperty().bind(Bindings.createDoubleBinding(
+                () -> holder.getPrefWidth() > 0
+                        ? holder.getPrefWidth() - holder.getInsets().getLeft() - holder.getInsets().getRight()
+                        : Double.MAX_VALUE,
+                holder.prefWidthProperty(), holder.insetsProperty()));
+        return text;
+    }
+
+    // A standalone image (<img> outside a text), in its own row. During typing it waits for the text before it.
+    private void renderImage(ImageElement current) {
+        Node image = DetachedNodes.image(current::getField, current.getStyle(), client);
+        if (image == null) {
+            return;
+        }
+        HBox box = new HBox(image);
+        box.getStyleClass().add("magid-default-image");
+        ((Pane) root).getChildren().add(box);
+        box.relocate(10, uiHouse.currentY());
+        uiHouse.addFloor(box);
+        showAfterTyping(box);
+        if (image instanceof ImageView view) {
+            view.getImage().progressProperty().addListener((o, before, now) -> {
+                if (now.doubleValue() >= 1) {
+                    uiHouse.redrawAll();
+                }
+            });
+        }
+    }
+
+    // A detached element before or after the menu description, in its own row.
+    private Region renderDetachedRow(DetachedElement element) {
+        Node node = DetachedNodes.create(element, client);
+        if (node == null) {
+            return null;
+        }
+        HBox row = new HBox(node);
+        row.getStyleClass().add("magid-detached-row");
+        ((Pane) root).getChildren().add(row);
+        row.relocate(uiHouse.getXOffset(), uiHouse.currentY());
+        uiHouse.addFloor(row);
+        return row;
+    }
+
+    private void showAfterTyping(Node node) {
+        if (!useTextTimeline || ignoreTexttimelines) {
+            return;
+        }
+        node.setVisible(false);
+        new Timeline(new KeyFrame(Duration.millis(timeOffset + 1), e -> node.setVisible(true))).playFromStart();
     }
 
     private void renderNarration(UiElement current) {
         Label label = new Label();
+        AnchoredText anchored = current.getDetachedElements().isEmpty()
+                ? null
+                : anchoredText(current, label, current.getDetachedElements());
         handleElementStyleAndClass(current, label);
         ((Pane)root).getChildren().add(label);
 
@@ -247,31 +326,62 @@ public class UiElementRenderer {
             uiHouse.addFloor(label);
         }
 
-        String what = current.getDisplayText();
+        String what = anchored == null ? current.getDisplayText() : anchored.getMarkedText();
+        StringProperty textHolder = anchored == null ? label.textProperty() : anchored.textProperty();
         root.applyCss();
         root.layout();
         label.getStyleClass().add(current.getStyle().getDefaultHtmlClass());
         label.getStyleClass().add(current.getStyle().getHtmlClass());
         label.applyCss();
         if (what.contains(Client.STOP_PREFIX) || useTextTimeline) {
-            renderTextWithTimeline(current, label.textProperty());
+            renderTextWithTimeline(current, what, textHolder);
         } else {
-            label.setText( what );
+            textHolder.setValue( what );
             uiHouse.redrawAll();
         }
 
 
     }
     private void renderMenu(UiElement current) {
-        TextArea menuMessage = new TextArea();
-        renderMenuText(current, menuMessage,  current.getDisplayText());
         if ( root == null) {
             throw  new RuntimeException("Root Element for menu not found");
+        }
+        List<DetachedElement> detached = current.getDetachedElements();
+        List<DetachedElement> anchored = detached.stream()
+                .filter(d -> d.getMode().equals(DetachedElement.BY_ANCHOR) && d.isAnchoredIn(current.getDisplayText()))
+                .toList();
+        // A by-anchor element whose anchor isn't in the description goes after it, like an appended one.
+        List<DetachedElement> appended = detached.stream()
+                .filter(d -> !d.getMode().equals(DetachedElement.PREPEND) && !anchored.contains(d))
+                .toList();
+        detached.stream().filter(d -> d.getMode().equals(DetachedElement.PREPEND)).forEach(this::renderDetachedRow);
+
+        Region menuMessage;
+        Timeline typing;
+        if ( anchored.isEmpty() ) {
+            TextArea textArea = new TextArea();
+            typing = renderMenuText(current, textArea.textProperty(), current.getDisplayText());
+            menuMessage = textArea;
+        } else {
+            // A TextArea can't hold the elements, so the description becomes a Label with the TextArea's classes
+            // ("text-area" included): the story's .magid-menu-textarea.text-area rules still apply.
+            Label holder = new Label();
+            holder.getStyleClass().add("text-area");
+            holder.setPrefWidth(600);
+            AnchoredText text = anchoredText(current, holder, anchored);
+            typing = renderMenuText(current, text.textProperty(), text.getMarkedText());
+            menuMessage = holder;
         }
         ((Pane)root).getChildren().add(menuMessage);
         setMenuProperties(menuMessage, current);
         menuMessage.relocate(uiHouse.getXOffset(),  uiHouse.currentY());
         uiHouse.addFloor(menuMessage);
+        List<Region> appendedRows = appended.stream().map(this::renderDetachedRow).filter(Objects::nonNull).toList();
+        if ( typing != null && !appendedRows.isEmpty() ) {
+            // Appended elements appear once the description has been typed out.
+            appendedRows.forEach(row -> row.setVisible(false));
+            typing.setOnFinished(e -> appendedRows.forEach(row -> row.setVisible(true)));
+        }
         String firstClassName = "";
         if (current.getStyle().getHtmlClass() != null  ) {
             firstClassName  = current.getStyle().getHtmlClass().trim().contains(" ")
@@ -325,14 +435,15 @@ public class UiElementRenderer {
         }
     }
 
-    private void renderMenuText(UiElement current, TextArea menuMessage, String what ) {
+    // Returns the typing timeline, or null when the text was shown at once.
+    private Timeline renderMenuText(UiElement current, StringProperty textHolder, String what ) {
         if (what.contains(Client.STOP_PREFIX) || useTextTimeline) {
-            renderTextWithTimeline(current, menuMessage.textProperty());
-        } else {
-            menuMessage.setText( what );
+            return renderTextWithTimeline(current, what, textHolder);
         }
+        textHolder.setValue( what );
+        return null;
     }
-    private void setMenuProperties(TextArea menuMessage, UiElement element) {
+    private void setMenuProperties(Region menuMessage, UiElement element) {
         menuMessage.getStyleClass().add("magid-menu-textarea");
         if (element != null ) {
 
@@ -353,11 +464,13 @@ public class UiElementRenderer {
                 ((Stage)menuMessage.getScene().getWindow()).setResizable(resizable);
             }
         }
-        menuMessage.setWrapText(true);
-        menuMessage.setEditable(false);
-        //menuMessage.setPrefWidth(600);
+        if ( menuMessage instanceof TextArea textArea ) {
+            textArea.setWrapText(true);
+            textArea.setEditable(false);
+            //menuMessage.setPrefWidth(600);
+            textArea.setPrefRowCount(6);
+        }
         menuMessage.setPrefHeight(450);
-        menuMessage.setPrefRowCount(6);
     }
     private void handleElementStyleAndClass(UiElement element, Control control) {
         if ( control != null) {

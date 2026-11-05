@@ -25,6 +25,8 @@ public abstract class UiElement {
     private Control control;
     private long defer;
     private UiElementRenderer renderer;
+    // The batch's detached elements that belong to this narration or menu (see Client.routeDetachedElements).
+    private final List<DetachedElement> detachedElements = new ArrayList<>();
 
 
     public UiElement() {
@@ -46,6 +48,10 @@ public abstract class UiElement {
         this.children = children;
     }
 
+
+    public List<DetachedElement> getDetachedElements() {
+        return detachedElements;
+    }
 
     public Style getStyle() {
         return style;

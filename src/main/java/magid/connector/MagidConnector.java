@@ -23,6 +23,8 @@ public class MagidConnector {
     String fileRequestToken = "";
     URLConnection connection;
     public static String MAGID_ANCHOR = "magid://";
+    // Carries the session id, plain (no "Bearer"). Authorization is reserved for a user's identity token.
+    public static final String SESSION_HEADER = "Magid-Session";
 
     public void setSessionId(String clientId) {
         this.sessionId = clientId;
@@ -61,7 +63,7 @@ public class MagidConnector {
     private void connect(String command, Map<String, String> moreParams) {
         StringBuilder url = new StringBuilder(formBasicGetString(command));
         for ( Map.Entry<String, String> entry : moreParams.entrySet()) {
-            url.append("&").append(entry.getKey()).append("=").append(
+            url.append("&").append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8)).append("=").append(
                  URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8)
             );
         }
@@ -76,8 +78,7 @@ public class MagidConnector {
             url = new URL(urlString);
             connection = url.openConnection();
             if ( !sessionId.isEmpty() ) {
-                connection.setRequestProperty("authorization", "Bearer " + sessionId);
-
+                connection.setRequestProperty(SESSION_HEADER, sessionId);
             }
             connection.connect();
         }
