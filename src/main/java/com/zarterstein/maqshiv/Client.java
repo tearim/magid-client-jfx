@@ -107,8 +107,9 @@ public class Client {
         return params;
     }
 
+    // Sends a reply to the story ("" for the current menu); server commands go through the connector directly.
     public void proceedWith(String command) {
-        storyToParse = connector.getResponse(command, userInputParams());
+        storyToParse = connector.getStoryReplyResponse(command, userInputParams());
         retryCommand = command;
         renderer.redraw(parse());
     }

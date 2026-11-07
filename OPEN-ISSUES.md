@@ -27,6 +27,14 @@ Each entry: what's wrong, where, why it matters, and a suggested fix.
   hold controls), so a long description is cut off instead of scrolling.
 - Fix idea: put the holder into a `ScrollPane` styled like the text area.
 
+## Connection
+
+### C1. A refused connection throws a NullPointerException instead of showing its alert (2026-11-08)
+- `MagidConnector._connect`, `IOException` branch: the alert header uses `request.isEmpty()`, but the field `request` is
+  never assigned (only a local variable in `requestXml` has that name), so it is always null. The user gets an NPE
+  instead of "The server … refused to connect".
+- Fix idea: drop the field and pass the command (or reply) being sent into `_connect` for the message.
+
 ## Styling
 
 ### S1. The oasis stylesheets cause JavaFX `ClassCastException` warnings (2026-11-05)

@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MagidConnector {
@@ -25,6 +26,8 @@ public class MagidConnector {
     public static String MAGID_ANCHOR = "magid://";
     // Carries the session id, plain (no "Bearer"). Authorization is reserved for a user's identity token.
     public static final String SESSION_HEADER = "Magid-Session";
+    // The command that carries a reply to the story; cmd itself only names server commands (set-xml, list-xmls, …).
+    public static final String STORY_REPLY = "story-reply";
 
     public void setSessionId(String clientId) {
         this.sessionId = clientId;
@@ -120,6 +123,17 @@ public class MagidConnector {
     public String getResponse(String command) {
         connect(command);
         return _getResponse();
+    }
+
+    // A reply to the story (a menu choice, update-symbol, …), sent as cmd=story-reply&reply=… whatever it is called, so
+    // it can't be taken for a server command. "" asks for the current menu (or starts a session) and stays cmd=.
+    public String getStoryReplyResponse(String reply, Map<String, String> moreParams) {
+        if (reply.isEmpty()) {
+            return getResponse("", moreParams);
+        }
+        Map<String, String> params = new LinkedHashMap<>(moreParams);
+        params.put("reply", reply);
+        return getResponse(STORY_REPLY, params);
     }
     private String _getResponse() {
 
